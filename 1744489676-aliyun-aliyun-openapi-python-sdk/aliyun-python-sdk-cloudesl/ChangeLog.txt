@@ -1,0 +1,68 @@
+2022-07-18 Version: 2.1.1
+- Add Mutimedia Screen API Support.
+
+2022-05-31 Version: 2.1.0
+- Add Template API Support.
+
+2021-10-15 Version: 2.0.7
+- Generated 2020-02-01 for `cloudesl`.
+
+2021-07-05 Version: 2.0.6
+- Supported deleteItem for sdk.
+
+2021-06-18 Version: 2.0.5
+- Supported 20210618 version for sdk.
+
+2020-10-27 Version: 1.0.1
+- Fix bug.
+
+2020-10-27 Version: 2.0.4
+- Add role authority management.
+
+2020-09-28 Version: 2.0.3
+- Add dingTalk applets function.
+
+2020-08-04 Version: 2.0.2
+- Add describeClientPackage function.
+
+2020-08-04 Version: 2.0.1
+- Add describeClientPackage function.
+
+2020-04-07 Version: 2.0.0
+- Support shelf type for planogram position.
+
+2020-04-03 Version: 2.0.1
+- Support shelf type for planogram position.
+
+2020-04-02 Version: 1.1.4
+- Support light up led lamp for ESL.
+
+2019-01-30 Version: 1.1.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-30 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-30 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-30 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-30 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-29 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-29 Version: 1.0.0
+1, Add a new pop interface to support deleting item by skuId which is defined by users to distinguish items
+
+2019-01-29 Version: 1.0.0
+1, This is an example of release-log.
+2, Please strictly follow this format to edit in English.
+3, Format：Number + , + Space + Description
+
+2018-12-17 Version: 1.0.0
+1, First Release
+

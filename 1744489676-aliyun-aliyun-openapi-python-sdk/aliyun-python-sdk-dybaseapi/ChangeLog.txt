@@ -1,0 +1,22 @@
+2021-04-29 Version: 1.0.8
+- Add Proxy-Authorization.
+
+2021-04-28 Version: 1.0.7
+- MNS SDK support http proxy.
+
+2020-06-15 Version: 1.0.6
+- Fix ModuleNotFoundError.
+
+2020-06-15 Version: 1.0.5
+- Change dependency to aliyun-python-sdk-core.
+
+2020-04-10 Version: 1.0.4
+1, Fixed SignatureDoseNotMatch error
+
+2020-04-08 Version: 1.0.3
+1, Supported Python3.
+
+2018-11-20 Version: 1.0.0
+1, Add MNS STS Token Query API
+2, Add MNS Minimal Package
+

@@ -1,0 +1,11 @@
+.DS_Store
+.tmp
+.settings
+.pyc
+*.pyc
+.idea
+.coverage
+htmlcov
+coverage.xml
+.cache/
+.vscode/

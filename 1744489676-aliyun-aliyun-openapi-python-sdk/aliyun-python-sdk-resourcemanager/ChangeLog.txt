@@ -1,0 +1,30 @@
+2025-03-03 Version: 1.2.7
+- Add auto grouping apis.
+
+2023-07-27 Version: 1.2.6
+- Generated 2020-03-31 for `ResourceManager`.
+
+2023-06-08 Version: 1.2.5
+- Modify endpoint for resourcemanager.
+
+2023-02-22 Version: 1.2.4
+- Supported more language for resourcemanager.
+
+2022-12-01 Version: 1.2.3
+- Supported more language for resourcemanager.
+
+2022-10-19 Version: 1.2.2
+- Supported more language for resourcemanager.
+
+2022-08-03 Version: 1.2.1
+- Supported more query conditions when searching resource group.
+
+2022-01-14 Version: 1.2.0
+- Supported more query conditions when searching resource group.
+
+2022-01-14 Version: 1.1.0
+- Supported more query conditions when searching resource group.
+
+2020-04-27 Version: 1.0.0
+- The first open version.
+

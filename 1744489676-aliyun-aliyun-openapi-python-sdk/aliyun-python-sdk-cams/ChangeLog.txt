@@ -1,0 +1,46 @@
+2024-09-03 Version: 1.0.13
+- QueryChatappBindWaba接口增加businessId, businessName参数返回
+
+2024-07-25 Version: 1.0.12
+- 增加号码开场白、命令等
+- 模板列表增加最迟更新时间
+
+2024-06-21 Version: 1.0.11
+- Authentication template add SupportApps
+
+2024-05-30 Version: 1.0.10
+- Generated 2020-06-06 for `cams`.
+
+2024-04-11 Version: 1.0.9
+- Generated 2020-06-06 for `cams`.
+
+2023-10-19 Version: 1.0.8
+- Coupon template
+- Carousel template
+- LTO template
+
+2023-09-21 Version: 1.0.7
+- Generated 2020-06-06 for `cams`.
+
+2023-09-15 Version: 1.0.6
+- Generated 2020-06-06 for `cams`.
+
+2023-05-08 Version: 1.0.5
+- whatsapp 修改Authentication类型的模板
+
+2023-04-14 Version: 1.0.4
+- whatsapp 目录修改
+- 回落短信允许指定回执超时回落时间
+- 增加Whatsapp 模板中location消息类型
+
+2020-10-12 Version: 1.0.3
+- ChatApp third version.
+- Add contack check api.
+
+2020-09-02 Version: 1.0.2
+- ChatApp second version.
+- Support new message fomat.
+
+2020-07-30 Version: 1.0.1
+- Supported ChatApp for SDK.
+

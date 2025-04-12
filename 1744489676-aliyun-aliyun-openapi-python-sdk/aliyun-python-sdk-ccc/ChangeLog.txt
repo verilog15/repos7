@@ -1,0 +1,120 @@
+2023-05-23 Version: 2.10.3
+- Supported BreakCodeDetails,FirstCheckInTime, LastCheckoutTime .
+
+2023-05-09 Version: 2.10.2
+- Supported GetVideo Api.
+
+2023-05-08 Version: 2.10.1
+- Supported GetVideo Api.
+
+2023-04-25 Version: 2.10.0
+- Iteration v2-10-0.
+
+2022-04-26 Version: 2.4.3
+- Support to pass variables to authentication IVR.
+
+2022-01-28 Version: 2.3.0
+- Support SIP phone management.
+
+2022-01-05 Version: 2.2.2
+- Add new interface.
+
+2021-12-30 Version: 1.0.30
+- Add new interface.
+
+2021-12-21 Version: 2.2.1
+- Add RAM ID in resonse of listUsers API.
+
+2021-12-16 Version: 2.2.0
+- Release for sprint 2_2_0.
+
+2021-11-29 Version: 2.1.0
+- Add API for unregister sip phone device, masked callee, etc.
+
+2021-10-14 Version: 2.0.18
+- Add API for predictive dialer.
+
+2021-09-28 Version: 1.0.29
+- Add new internal API.
+
+2021-09-13 Version: 2.0.17
+- Supported CallerLocation, CalleeLocation in CDR API.
+
+2021-08-10 Version: 2.0.15
+- Export instance relative API.
+
+2021-07-23 Version: 2.0.14
+- Export instance relative API.
+
+2021-06-08 Version: 2.0.13
+- Refine API response for GetCallDetailRecord.
+
+2021-05-25 Version: 2.0.12
+- Export new API for IVR tracking.
+
+2021-05-24 Version: 2.0.11
+- Export new API for report.
+
+2021-05-17 Version: 1.0.28
+- Export new API for predictive dialer.
+
+2021-04-28 Version: 2.0.10
+- Export new API.
+
+2021-04-20 Version: 1.0.27
+- Export predictive dialer API.
+
+2021-04-19 Version: 2.0.9
+- Export StartBack2BackCall API.
+
+2021-04-12 Version: 2.0.8
+- Export config api.
+
+2021-03-25 Version: 2.0.7
+- Change indicator date type of ListHistoriticalAgentReport.
+
+2021-03-24 Version: 2.0.6
+- Export new API.
+
+2021-03-19 Version: 2.0.5
+- Export new API.
+
+2021-03-19 Version: 1.0.26
+- Export new API for predictive dialer.
+
+2021-03-09 Version: 1.0.25
+- Export new API for predictive dialer.
+
+2021-01-12 Version: 2.0.4
+- Add new API for recording.
+
+2021-01-08 Version: 2.0.3
+- Add new API for configuration and report, generate SDK again.
+
+2021-01-07 Version: 2.0.1
+- Add new API for configuration and report.
+
+2021-01-06 Version: 2.0.0
+- Initial release.
+
+2020-12-01 Version: 1.0.24
+- Fixed bugs for CCC.
+
+2020-04-16 Version: 1.0.21
+- Add features for open api.
+
+2019-09-05 Version: 1.0.19
+- Generated 2017-07-05 for `CCC`.
+
+2018-08-14 Version: 1.0.8
+1, Change parameter name of Dialogue
+
+2018-04-25 Version: 1.0.5
+1, Add new interface
+
+2018-01-12 Version: 1.0.1
+1, fix the TypeError while building the repeat params
+
+2017-12-18 Version: 1.0.0
+1, This is the first release of CCC Open API.
+

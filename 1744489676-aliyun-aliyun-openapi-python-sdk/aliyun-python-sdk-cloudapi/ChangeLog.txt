@@ -1,0 +1,71 @@
+2023-10-26 Version: 1.0.4
+- Generated 2016-07-14 for `CloudAPI`.
+
+2023-01-30 Version: 1.0.3
+- Modify DescribeApis.
+
+2022-12-05 Version: 1.0.2
+- Modify QueryRequestLogs.
+
+2022-11-29 Version: 1.0.1
+- Add DescribePluginApis.
+- Modify CreateApp.
+- Modify DeleteApp.
+
+2022-11-16 Version: 1.0.0
+- Add ImportOAS.
+
+2019-09-05 Version: 4.9.2
+- Generated 2016-07-14 for `CloudAPI`.
+
+2019-08-08 Version: 4.9.1
+- Group, Plugin support tag authentication.
+
+2019-07-25 Version: 4.9.0
+- App-related actions support tag authentication.
+
+2019-02-17 Version: 4.8.3
+1,  API definition support 'ForceNonceCheck', 'DisableInternet' parameter settings
+
+
+2019-01-23 Version: 4.8.5
+1, release new version
+
+2019-01-23 Version: 4.8.2
+1, release new version
+
+2019-01-23 Version: 3.8.2
+1, Add model relevant parameter
+1, Add plugin relevant parameter
+
+2019-01-23 Version: 4.8.1
+1, Add model relevant parameter
+
+2019-01-23 Version: 4.8.2
+1, support plugin
+2, support model
+
+2019-01-23 Version: 4.8.1
+1, Add model relevant parameter
+
+2019-01-22 Version: 4.8.1
+1, Add model relevant parameters
+
+2019-01-21 Version: 4.8.1
+1, Interface DescribePluginApis returns the modification
+
+
+2019-01-16 Version: 4.8.0
+1, The plugin feature is released and supports a variety of plugins, as follows:trafficControl、backendSignature、ipControl、jwtAuth、cors、caching
+
+2018-10-15 Version: 4.5.1
+1, Update
+
+2018-01-18 Version: 4.5.0
+1, Add IP Controls APIs
+2, Add Log Config APIs
+
+2017-12-27 Version: 4.3.0
+1, Add Apigateway SDK for Python.
+
+

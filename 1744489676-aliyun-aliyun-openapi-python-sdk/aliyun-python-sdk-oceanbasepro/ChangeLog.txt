@@ -1,0 +1,78 @@
+2025-04-01 Version: 1.0.27
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2025-03-11 Version: 1.0.26
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-09-13 Version: 1.0.25
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-09-02 Version: 1.0.24
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-08-05 Version: 1.0.23
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-07-24 Version: 1.0.22
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-07-04 Version: 1.0.21
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-07-02 Version: 1.0.20
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-06-14 Version: 1.0.19
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-05-27 Version: 1.0.18
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-05-27 Version: 1.0.17
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-05-23 Version: 1.0.16
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2024-03-25 Version: 1.0.15
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2023-12-28 Version: 1.0.14
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2023-12-14 Version: 1.0.13
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2023-11-21 Version: 1.0.12
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2023-10-12 Version: 1.0.11
+- Generated 2019-09-01 for `OceanBasePro`.
+
+2023-08-25 Version: 1.0.10
+- Update SDK.
+
+2023-06-08 Version: 1.0.9
+- Update SDK.
+
+2023-05-19 Version: 1.0.8
+- Update SDK.
+
+2023-04-10 Version: 1.0.7
+- Update SDK.
+
+2023-03-03 Version: 1.0.6
+- Update SDK.
+
+2023-02-02 Version: 1.0.5
+- Update SDK.
+
+2022-12-09 Version: 1.0.4
+- Update SDK.
+
+2022-12-02 Version: 1.0.3
+- Update SDK.
+
+2022-11-17 Version: 1.0.2
+- Update SDK.
+

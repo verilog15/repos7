@@ -1,0 +1,122 @@
+2025-04-10 Version 1.3.3
+1、Improve the parameters of some APIs
+
+2024-03-26 Version 1.3.2
+1、Add api: ResizeContainerGroupVolume
+
+2023-10-13 Version: 1.3.1
+1、SpotResource
+
+2023-09-14 Version: 1.3.0
+1、Container env support hide
+2、DescribeAvalibleResource api parameters make up
+
+2023-09-06 Version: 1.2.9
+1、Eci support HostPathVolume set
+
+2023-08-18 Version: 1.2.8
+1、CreateContainerGroup Api add parameters
+2、DescribeDataCaches Api support datacacheId
+
+2023-08-02 Version: 1.2.7
+1、CreateContainerGroup Api add parameters
+
+2023-07-14 Version: 1.2.6
+1、Support Api: DescribeContainerGroupStatus
+
+2023-07-05 Version: 1.2.5
+1、Support DataCache Api
+
+2023-05-05 Version: 1.2.4
+1、Support DeleteContainerGroups Api
+
+2023-03-28 Version: 1.2.3
+1、Support CommitContainer Api
+
+2022-07-14 Version: 1.2.2
+1、CreateContainerGroup add Params： Ipv6GatewayBandwidthEnable、Ipv6GatewayBandwidth
+
+2022-05-12 Version: 1.2.1
+1、ImageCache Tag
+
+2022-02-21 Version: 1.2.0
+1、Support Api: DescribeAvailableResource UpdateImageCache
+
+2021-08-17 Version: 1.1.9
+1、ExecCommand Api update
+
+2021-08-11 Version: 1.1.8
+1、imageCache support acrRegistryInfos
+
+2021-06-09 Version: 1.1.7
+1, support spot duration
+2, support flash cache
+
+2021-03-31 Version: 1.1.6
+1, completion create request args
+
+2021-03-11 Version: 1.1.5
+1, support acrRegistryInfos
+
+2021-01-15 Version: 1.1.4
+1, support specity resourceGroupId and custom systemdisk
+
+2020-12-03 Version: 1.1.3
+1, describePrice support spot
+
+2020-11-25 Version: 1.1.2
+1, support ListUsage function
+
+2020-11-20 Version: 1.1.1
+1, delete template
+2, fix createimagecache
+
+2020-11-19 Version: 1.1.0
+1, support automatchimagecache cache reuse
+
+2020-03-16 Version: 1.0.9
+1, support create spot
+2, support create flexVolume
+3, fix up a parameter
+
+2019-12-05 Version: 1.0.8
+1, support container lifecycle
+2, support disk volume
+3, support eci instance ram role
+4, support SecurityContextSysctls
+5, support ntp server
+6, support TerminationGracePeriodSeconds
+
+
+2019-11-28 Version: 1.0.7
+1, support image cache auto expire time
+
+2019-10-28 Version: 1.0.5
+1, support image cache
+
+2019-04-16 Version: 1.0.4
+1, support ECI resatart/update
+2, support ECI metric
+3, support template API
+4, support memory for emptyDirVolume
+5, support client token
+
+2018-12-29 Version: 1.0.3
+1, Add probe for container.
+2, Add securityContext for container.
+3, Add dnsConfig for pod.
+
+2018-12-28 Version: 1.0.2
+1, Add probe for container.
+2, Add securityContext for container.
+3, Add dnsConfig for pod.
+
+2018-12-11 Version: 1.0.1
+1, Add ConfigFileVolume
+2, Remove the Enable of EmptyDirVolume, Name and Type is enough to build an EmptyDirVolume
+
+2018-11-07 Version: 1.0.0
+1, The beta version SDK of ECI.
+2, Only supports Java and Python.
+3, Go will be supported soon
+

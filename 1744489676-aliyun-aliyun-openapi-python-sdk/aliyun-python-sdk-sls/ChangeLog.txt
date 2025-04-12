@@ -1,0 +1,15 @@
+2024-05-27 Version: 1.1.2
+- Generated 2019-10-23 for `Sls`.
+
+2021-11-22 Version: 1.1.1
+- Optimize getSlsService response.
+
+2021-09-01 Version: 1.1.0
+- Add Alert Init API.
+
+2021-09-01 Version: 1.0.9
+- Add Alert Init API.
+
+2021-01-18 Version: 1.0.8
+- OpenSlsService and GetSlsService support RAM subaccount.
+

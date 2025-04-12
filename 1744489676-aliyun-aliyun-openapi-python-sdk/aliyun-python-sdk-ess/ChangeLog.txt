@@ -1,0 +1,151 @@
+2025-03-14 Version: 2.3.31
+- 支持根据属性查询弹性强度时返回库存健康度
+
+2025-01-14 Version: 2.3.30
+- InstanceRefresh support SkipMatching.
+
+2025-01-08 Version: 2.3.29
+- InstanceRefresh support SkipMatching.
+
+2024-12-18 Version: 2.3.28
+- InstanceRefresh support SkipMatching.
+
+2024-12-02 Version: 2.3.27
+- ScalingGroup support spot replace on demand instance.
+
+2024-11-12 Version: 2.3.26
+- ScalingConfiguration supoort ConfidentialComputingMode.
+
+2024-10-22 Version: 2.3.25
+- ScalingConfiguration supoort ConfidentialComputingMode.
+
+2024-08-21 Version: 2.3.24
+- DescribeScalingGroups add SpotCapacity.
+
+2024-07-29 Version: 2.3.23
+- Ess support instance refresh.
+
+2024-07-04 Version: 2.3.22
+- ModifyScalingGroup add ScalingPolicy params.
+
+2024-05-16 Version: 2.3.21
+- ModifyScalingGroup add ScalingPolicy params.
+
+2024-04-17 Version: 2.3.20
+- ModifyScalingGroup add ScalingPolicy params.
+
+2024-02-26 Version: 2.3.19
+-ModifyScalingGroup add ScalingPolicy params.
+
+2024-01-31 Version: 2.3.18
+- ECIScalingConfiguration add lifecycle params.
+
+2024-01-23 Version: 2.3.17
+- ECIScalingConfiguration add lifecycle params.
+
+2023-12-06 Version: 2.3.16
+- ScaleWithAdjustment supports ECI overrides.
+
+2023-12-04 Version: 2.3.15
+- ScalingConfiguration support StorageSet.
+
+2023-11-14 Version: 2.3.14
+- ECIScalingConfiguration add data cache fields.
+
+2023-10-12 Version: 2.3.13
+- ECIScalingConfiguration support instanceTypes.
+
+2023-09-25 Version: 2.3.12
+- DescribeScalingGroups support Tag filter.
+
+2023-08-31 Version: 2.3.11
+- ScalingConfiguration support DeletionProtection.
+
+2023-07-20 Version: 2.3.10
+- DescribeScalingInstances support creationTypes.
+
+2023-07-12 Version: 2.3.9
+- ECIScalingConfiguration support EmptyDirVolume size.
+
+2023-02-09 Version: 2.3.7
+- New AttachServerGroups and DetachServerGroups.
+
+2023-01-03 Version: 1.0.0
+- ModifyEciScalingConfiguration support containers incremental update.
+
+2022-10-20 Version: 2.3.6
+- ScalingGroup support custom removal policy.
+
+2022-05-31 Version: 2.3.5
+- Support Ecs system disk encrypted options.
+
+2022-05-20 Version: 2.3.4
+- Support Ecs system disk encrypted options.
+
+2020-10-26 Version: 2.3.3
+- Update ScalingConfig parameters.
+
+2020-06-24 Version: 2.3.2
+- ScalingConfig support ddh.
+
+2020-03-24 Version: 2.3.1
+- Add ListTagKeys, ListTagValues etc.
+
+2019-04-04 Version: 2.3.0
+1, ScalingConf systemDisk add DiskName and Description  parameters.
+2, ScalingConf dataDisk add DiskName & Description & Encrypted & KMSKeyId  parameters.
+
+2019-01-28 Version: 2.2.9
+1, Support modify vSwitch of scalingGroup.
+2, Support new target tracking scaling rule.
+
+2018-12-05 Version: 2.2.8
+1, Scaling group support vServerGroup.
+
+2018-12-03 Version: 2.2.7
+1,  Add a parameter to RemoveInstances.
+
+2018-09-06 Version: 2.2.6
+1, AutoScaling support launchTemplate.
+
+2018-08-27 Version: 2.2.5
+1, add Ess alarm task api, CreateAlarm, DeleteAlarm, DescribeAlarms, DeleteAlarm, EnableAlarm, DisableAlarm
+
+
+2018-08-16 Version: 2.2.4
+1, ModifyScalingConfiguration add imageName.
+2, CreateScalingConfiguration add imageName.
+
+2018-07-11 Version: 2.2.2
+1, new function: Attach and Detach Rds instance of scalingGroup.
+
+
+2018-07-05 Version: 2.2.1
+1, new function, attach/detach load balancer of scalingGroup
+
+2018-06-28 Version: 2.2.0
+1, ScalingConfiguration support hostName and passwordInherit
+2, ScalingConfiguration support modify
+
+2018-06-13 Version: 2.1.6
+1, Add lifecycleHook.
+
+2018-05-07 Version: 2.1.5
+1, Remove DescribeAccountAttributes.
+
+2018-04-23 Version: 2.1.4
+1, Add notificationConfiguration.
+2, Add standby status.
+
+2018-01-12 Version: 2.1.4
+1, fix the TypeError while building the repeat params
+
+2017-11-14 Version: 2.1.1
+1, 重新开放DescribeScalingActivities接口。
+
+
+2017-10-26 Version: 2.1.0
+1, ESS支持蚂蚁金融云。
+2, 调整ScalingConfiguration组件，新增userData，keyPairName，ramRoleName，deploymentSetId，securityEnhancementStrategy，tags共6个字段，增强伸缩组的弹性能力。
+3, SDK接入日本、德国、迪拜、澳洲等地域，Region化的区域也可以使用当前版本SDK。
+

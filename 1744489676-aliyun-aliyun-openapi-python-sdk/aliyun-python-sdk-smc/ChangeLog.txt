@@ -1,0 +1,15 @@
+2025-03-07 Version: 1.0.4
+- Generated 2019-06-01 for `smc`.
+
+2021-04-26 Version: 1.0.3
+- Generated 2019-06-01 for `smc`.
+
+2020-11-12 Version: 1.0.2
+- Generated 2019-06-01 for `smc`.
+
+2019-11-27 Version: 1.0.1
+- CreateReplicationJob API supports the specified instance type.
+
+2019-10-09 Version: 1.0.0
+- Generated 2019-06-01 for `smc`.
+

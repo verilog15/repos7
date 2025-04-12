@@ -1,0 +1,36 @@
+2025-01-14 Version: 1.0.11
+- Generated 2023-01-20 for `csas`.
+
+2024-10-30 Version: 1.0.10
+- Generated 2023-01-20 for `csas`.
+
+2024-07-03 Version: 1.0.9
+- Generated 2023-01-20 for `csas`.
+
+2024-06-20 Version: 1.0.8
+- Generated 2023-01-20 for `csas`.
+
+2024-06-11 Version: 1.0.7
+- Generated 2023-01-20 for `csas`.
+
+2024-06-06 Version: 1.0.6
+- Generated 2023-01-20 for `csas`.
+
+2024-04-25 Version: 1.0.5
+- Support IdP configuration management.
+
+2024-04-15 Version: 1.0.4
+- Generated 2023-01-20 for `csas`.
+
+2023-11-16 Version: 1.0.3
+- Supported SortBy for ListUserDevices.
+
+2023-08-31 Version: 1.0.2
+- Supported connector visualization manage.
+
+2023-08-24 Version: 1.0.1
+- Supported recommand serialization format flat.
+
+2023-08-16 Version: 1.0.0
+- Supported dynamicRoute.
+

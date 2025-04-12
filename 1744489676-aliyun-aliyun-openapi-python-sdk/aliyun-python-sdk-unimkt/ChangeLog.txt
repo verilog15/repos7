@@ -1,0 +1,24 @@
+2022-03-16 Version: 2.4.8
+- Union Task API.
+
+2021-11-25 Version: 2.4.3
+- GetUnionTaskStatus add channelId.
+
+2021-09-06 Version: 2.4.0
+- Supported for custom creative union task.
+
+2021-07-08 Version: 1.0.25
+- Generated 2018-12-12, 2018-12-07 for `UniMkt`.
+
+2020-08-10 Version: 1.0.24
+- Generated 2018-12-12, 2018-12-07 for `UniMkt`.
+
+2020-08-05 Version: 1.0.23
+- Generated 2018-12-12, 2018-12-07 for `UniMkt`.
+
+2019-12-24 Version: 1.0.0
+- Generated 2018-12-12, 2018-12-07 for `UniMkt`.
+
+2019-11-26 Version: 1.0.0
+- Generated 2018-12-12, 2018-12-07 for `UniMkt`.
+

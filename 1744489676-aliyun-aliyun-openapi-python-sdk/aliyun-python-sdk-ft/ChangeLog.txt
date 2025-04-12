@@ -1,0 +1,64 @@
+2022-08-11 Version: 3.2.33
+- AMP version.
+
+2022-07-29 Version: 1.22.20
+- AMP version.
+
+2022-07-29 Version: 1.22.19
+- AMP version.
+
+2022-07-29 Version: 1.22.18
+- AMP version.
+
+2022-07-28 Version: 1.22.12
+- AMP version.
+
+2021-03-01 Version: 1.10.14
+- AMP Version Change.
+
+2021-02-28 Version: 1.13.10
+- AMP Version Change.
+
+2020-11-20 Version: 5.6.7
+- Generated 2015-02-02 for `Ft`.
+
+2020-11-20 Version: 1.0.0
+- Generated 2015-02-02 for `Ft`.
+
+2020-03-19 Version: 1.3.47
+- Release Ft SDK.
+
+2020-03-18 Version: 1.3.46
+- Release Ft SDK.
+
+2020-03-12 Version: 1.3.45
+- Release Ft SDK.
+
+2020-03-12 Version: 1.3.44
+- Release Ft SDK.
+
+2020-02-27 Version: 1.0.0
+- Release Ft SDK.
+
+2020-02-24 Version: 1.0.0
+- Release Ft SDK.
+
+2020-02-24 Version: 1.0.0
+- Release Ft SDK.
+
+2019-03-21 Version: 1.0.0
+1, Update Dependency
+
+2018-08-27 Version: null
+null
+
+2018-08-12 Version: 0.0.1
+1.abc
+2.def
+
+
+2018-08-12 Version: 0.0.1
+1.abc
+2.def
+
+

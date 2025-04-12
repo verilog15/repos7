@@ -1,0 +1,83 @@
+2023-11-13 Version: 1.1.10
+- Support DiskEncryption.
+
+2023-10-23 Version: 1.1.9
+- Generated 2019-03-15 for `adb`.
+
+2023-10-13 Version: 1.1.8
+- Public Api.
+
+2023-09-18 Version: 1.1.7
+- Public Api.
+
+2023-08-23 Version: 1.1.6
+- Support DryRunCluster For LakeVersion.
+
+2023-08-03 Version: 1.1.5
+- Support region id.
+
+2023-08-02 Version: 1.1.4
+- Support tag policy.
+
+2023-08-01 Version: 1.1.3
+- Support resoruce group id.
+- Support resource group id.
+
+2023-08-01 Version: 1.1.2
+- Support resource group id.
+
+2023-08-01 Version: 1.1.1
+- Support resourcegroup id.
+- Support resourceGroup id.
+- Support resource group.
+- Support resrouce group.
+- Support resource group id.
+- Support region id.
+- Support RegionId Ram Auth.
+- Support resrouce group id.
+
+2023-07-28 Version: 1.1.0
+- Add ErrorCode.
+- Support DescribeResubmitConfig and ModifyResubmitConfig.
+- Support DescribeSQAConfig and ModifySQAConfig.
+- Set default value.
+- Support Api TagList.
+- Modify parameters and response for ResubmitConfig API.
+- Update CancelActiveOperationTasks.
+- DescribeActiveOperationTasks Response add field TaskParams.
+- Add patameters for DescribeVswitches and DescribeVpcs.
+- Add regionId.
+
+2023-03-20 Version: 1.0.9
+- Support DryRunCluster For LakeVersion.
+
+2023-03-09 Version: 1.0.8
+- Support DryRunCLuster.
+- Support DescribeAvailableResource DescribeComputeResource DescribeEIURange For LakeVersion.
+
+2022-06-07 Version: 1.0.7
+- Support ModifyDBClusterPayType.
+
+2021-03-13 Version: 1.0.6
+- Supportd DescribeTableStatisticsRequest.
+
+2020-07-21 Version: 1.0.5
+- Support Tag API.
+
+2019-12-31 Version: 1.0.4
+- Support DeleteDBCluster.
+- Support ModifyDBCluster.
+- Support DescribeAvailableResource.
+
+2019-11-14 Version: 1.0.3
+- Support Tag OpenAPI.
+- Fix endpoint problem.
+
+2019-11-13 Version: 1.0.2
+- Support Go SDK.
+- Support C SDK.
+- Support PHP SDK.
+
+2019-08-27 Version: 1.0.0
+- Support Python SDK.
+

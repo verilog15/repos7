@@ -1,0 +1,18 @@
+2024-10-08 Version: 1.2.10
+- Publish Python SDK For V1.0.
+
+2024-01-25 Version: 1.2.9
+- Release parameter Detail in CreateBackupJob.
+
+2023-01-29 Version: 1.2.8
+- Update HBR OpenAPI.
+
+2023-01-05 Version: 0.1.0
+- Update HBR OpenAPI.
+
+2020-10-21 Version: 0.0.2
+- Support new backup client.
+
+2019-07-31 Version: 0.0.1
+- First version.
+

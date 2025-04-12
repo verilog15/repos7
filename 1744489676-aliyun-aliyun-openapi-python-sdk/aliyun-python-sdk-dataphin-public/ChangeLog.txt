@@ -1,0 +1,17 @@
+2025-03-07 Version: 1.0.4
+- Dataphin v4.5.1 openapi.
+
+2024-12-30 Version: 1.0.3
+- Dataphin openapi start.
+
+2024-10-11 Version: 1.0.2
+- Dataphin v4.3 openapi.
+
+2023-10-19 Version: 1.0.1
+- Supported Apis  for Dataphin V3_11_2.
+-Add Api ListUsers.
+- Fixed Api UpdateTenantMember For Bug xxxx.
+
+2023-08-09 Version: 1.0.0
+- Supported Open Apis  for Dataphin.
+

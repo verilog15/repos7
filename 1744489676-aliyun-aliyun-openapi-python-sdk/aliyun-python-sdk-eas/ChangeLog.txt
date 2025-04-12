@@ -1,0 +1,21 @@
+2023-12-15 Version: 0.0.9
+- Generated 2021-07-01 for `eas`.
+
+2023-02-10 Version: 0.0.8
+- Add service label api.
+
+2022-11-02 Version: 0.0.7
+- Add new api for benchmark test.
+
+2022-08-11 Version: 0.0.6
+- Add some missing field.
+
+2022-07-28 Version: 0.0.5
+- Fix bug.
+
+2021-12-10 Version: 0.0.4
+- Update to v2 api.
+
+2020-03-20 Version: 0.0.3
+- Add GetNetworkInterface interface.
+

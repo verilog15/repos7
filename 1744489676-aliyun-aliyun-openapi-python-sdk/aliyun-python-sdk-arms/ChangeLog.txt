@@ -1,0 +1,180 @@
+2024-08-15 Version: 2.7.32
+- Support effective time for CreateOrUpdateSilencePolicy interface.
+- Fix spelling errors in the field SupportAuthTypes.
+
+2024-08-05 Version: 2.7.31
+- Offline remote write related APIs.
+- Mark the managedPrometheus related APIs as deprecated.
+
+2023-05-26 Version: 2.7.30
+- Add solution to response for GetAlerts Api.
+
+2023-03-14 Version: 2.7.29
+- Fix SearchTracesByPage,add isError
+
+2023-03-10 Version: 2.7.28
+- Fixed bugs for getClusterAllUrl pop interface.
+
+2023-03-07 Version: 2.7.27
+- Fixed bugs for getClusterAllUrl pop interface.
+
+2022-09-05 Version: 2.7.26
+- Update sdk.
+
+2022-08-11 Version: 2.7.25
+- Fix UpdateIntegration api.
+
+2022-07-25 Version: 2.7.24
+- Update version No.
+
+2022-05-30 Version: 2.7.23
+- Arms AlertManager DescrieWebhookContacts.
+- Param Adapt SDK.
+
+2021-06-28 Version: 2.7.22
+- Edit ListRetcodeApps.
+- Edit SearchRetcodeAppByPage.
+
+2021-04-30 Version: 2.5.30
+- Add OpenArmsServiceSecondVersion.
+
+2021-04-29 Version: 2.5.29
+- Mod ListDashboards add parameters,support dashboardName query.
+
+2021-03-26 Version: 2.7.21
+- Support prometheus alert api.
+
+2021-03-19 Version: 2.5.27
+- Mod OpenVCluster add parameters, support cloud product assess.
+- Mod ListDashboards add parameters, support cloud product query.
+
+2021-03-18 Version: 2.5.26
+- Edit GetTrace api.
+- Edit GetMultipleTrace api.
+
+2021-03-01 Version: 2.5.25
+- Mod ListServerlessTopNApps.
+
+2021-02-26 Version: 2.5.24
+- Add ListServerlessTopNApps.
+
+2021-02-20 Version: 2.5.23
+- Add CheckServiceStatus.
+- Add OpenXtraceDefaultSLR.
+- Add OpenArmsDefaultSLR.
+
+2021-01-28 Version: 2.5.22
+- Update QueryMetric api support customFilters parameter.
+
+2020-12-18 Version: 2.5.21
+- Add GetAgentDownloadUrl api.
+
+2020-12-18 Version: 2.5.20
+- Add ListScenario Api.
+- Add ApplyScenario Api.
+- Add DeleteScenario Api.
+
+2020-12-07 Version: 2.5.19
+- Add Listdashboard Api.
+
+2020-11-30 Version: 2.5.18
+- Add OpenARMS api.
+
+2020-11-30 Version: 2.5.17
+- Add OpenARMS api.
+
+2020-11-30 Version: 2.5.17
+- Add OpenARMS api.
+
+2020-10-15 Version: 2.5.16
+- Add SaveTraceAppConfig api.
+
+2020-08-24 Version: 2.5.15
+- Edit QueryMetricByPage api.
+
+2020-08-21 Version: 2.5.14
+- Add QueryMetricByPage api.
+- Add GetAppApiByPage api.
+
+2020-08-17 Version: 2.5.13
+- Add GetTrace api.
+- Edit Aler api.
+
+2020-07-31 Version: 2.5.12
+- Edit GetStack api.
+
+2020-07-24 Version: 2.5.11
+- Edit ListTraceApp api with add tags.
+- Edit SearchTraceAppByName api with add tags.
+- Edut SearchTraceAppByPage api with add tags.
+
+2020-07-15 Version: 2.5.10
+- Edit ListTraceApp api.
+- Edit SearchTraceAppByName api.
+- Edut SearchTraceAppByPage api.
+
+2020-06-22 Version: 2.5.9
+- Add GetMultipleTrace api.
+- Add SearchTracesByPage api.
+- Add GetStack api.
+
+2020-06-02 Version: 2.5.8
+- Edit SearchTraces api.
+
+2020-05-20 Version: 2.5.7
+- Edit GetTrace and SearchTraces api.
+
+2020-04-30 Version: 2.5.6
+- Add prometheus ListDashboards api.
+
+2020-04-29 Version: 2.5.5
+- Add prometheus ListDashboards api.
+
+2020-04-29 Version: 2.5.5
+- Add prometheus ListDashboards api.
+
+2020-04-09 Version: 2.5.4
+- Add prometheus api AddGrafana and AddIntegration.
+
+2020-04-03 Version: 2.5.3
+- Add trace api.
+- Add prometheus api.
+
+2019-08-22 Version: 2.5.2
+- Api release 2019-08-08 public sdk 2-5-2 sdk release 20190822 shichun-fsc.
+
+2019-08-13 Version: 2.5.1
+- Optimize return code.
+- Edit QueryDataset.
+
+2019-08-13 Version: 2.5.0
+- Api release 2019-08-08 public sdk.
+
+2019-05-31 Version: 2.4.4
+1, add api 'search traces count' 
+2, add page index for api 'searchTraces'
+
+2018-12-21 Version: 2.3.0
+1, ARMS SDK 2018-12-19 go sdk upload
+
+2018-10-16 Version: 2.2.0
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-10-16 Version: 2.2.0
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-10-16 Version: 2.2.0
+1, This version add MetricQuery interface to support retcode and apm metric query.
+
+2018-01-12 Version: 2.0.3
+1, fix the TypeError while building the repeat params
+
+2017-12-20 Version: 2.0.1
+1, support tile dataset
+2, use dimension value type to replace isDrillDown
+
+2017-12-20 Version: 2.0.0
+1, support tile dataset
+2, use dimension value type to replace isDrillDown
+
+
