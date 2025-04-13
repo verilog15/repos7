@@ -1,0 +1,63 @@
+<#import "_features.html" as f>
+
+<@f.scaffold title="@With" logline="Immutable 'setters' - methods that create a clone but with one changed field.">
+	<@f.history>
+		<p>
+			<code>@Wither</code> was introduced as experimental feature in lombok v0.11.4.
+		</p><p>
+			<code>@Wither</code> was renamed to <code>@With</code>, and moved out of experimental and into the core package, in lombok v1.18.10.
+	</@f.history>
+
+	<@f.overview>
+		<p>
+			The next best alternative to a setter for an immutable property is to construct a clone of the object, but with a new value for this one field. A method to generate this clone is precisely what <code>@With</code> generates: a <code>withFieldName(newValue)</code> method which produces a clone except for the new value for the associated field.
+		</p><p>
+			For example, if you create <code>public class Point { private final int x, y; }</code>, setters make no sense because the fields are final. <code>@With</code> can generate a <code>withX(int newXValue)</code> method for you which will return a new point with the supplied value for <code>x</code> and the same value for <code>y</code>.
+		</p><p>
+			The <code>@With</code> relies on a constructor for all fields in order to do its work. If this constructor does not exist, your <code>@With</code> annotation will result in a compile time error message. You can use Lombok's own <a href="/features/constructor"><code>@AllArgsConstructor</code></a>, or as <a href="/features/Value"><code>Value</code></a> will automatically produce an all args constructor as well, you can use that too. It's of course also acceptable if you manually write this constructor. It must contain all non-static fields, in the same lexical order.
+		</p><p>
+			Like <a href="/features/GetterSetter"><code>@Setter</code></a>, you can specify an access level in case you want the generated with method to be something other than <code>public</code>:<br /> <code>@With(level = AccessLevel.PROTECTED)</code>. Also like <a href="/features/GetterSetter"><code>@Setter</code></a>, you can also put a <code>@With</code> annotation on a type, which means a <code>with</code> method is generated for each field (even non-final fields).
+		</p><p>
+			To put annotations on the generated method, you can use <code>onMethod=@__({@AnnotationsHere})</code>. Be careful though! This is an experimental feature. For more details see the documentation on the <a href="/features/experimental/onX">onX</a> feature.
+		</p><p>
+			javadoc on the field will be copied to generated with methods. Normally, all text is copied, and <code>@param</code> is <em>moved</em> to the with method, whilst <code>@return</code> lines are stripped from the with method's javadoc. Moved means: Deleted from the field's javadoc. It is also possible to define unique text for the with method's javadoc. To do that, you create a 'section' named <code>WITH</code>. A section is a line in your javadoc containing 2 or more dashes, then the text 'WITH', followed by 2 or more dashes, and nothing else on the line. If you use sections, <code>@return</code> and <code>@param</code> stripping / copying for that section is no longer done (move the <code>@param</code> line into the section).
+		</p>
+	</@f.overview>
+
+	<@f.snippets name="With" />
+
+	<@f.confKeys>
+		<dt>
+			<code>lombok.accessors.prefix</code> += <em>a field prefix</em> (default: empty list)
+		</dt><dd>
+			This is a list property; entries can be added with the <code>+=</code> operator. Inherited prefixes from parent config files can be removed with the <code>-=</code> operator. Lombok will strip any matching field prefix from the name of a field in order to determine the name of the getter/setter to generate. For example, if <code>m</code> is one of the prefixes listed in this setting, then a field named <code>mFoobar</code> will result in a getter named <code>getFoobar()</code>, not <code>getMFoobar()</code>. An explicitly configured <code>prefix</code> parameter of an <a href="/features/experimental/Accessors"><code>@Accessors</code></a> annotation takes precedence over this setting.
+		</dd><dt>
+			<code>lombok.accessors.capitalization</code> = [<code>basic</code> | <code>beanspec</code>] (default: basic)
+		</dt><dd>
+			Controls how tricky cases like <code>uShaped</code> (one lowercase letter followed by an upper/titlecase letter) are capitalized. <code>basic</code> capitalizes that to <code>withUShaped</code>, and <code>beanspec</code> capitalizes that to <code>withuShaped</code> instead.<br />
+			Both strategies are commonly used in the java ecosystem, though <code>beanspec</code> is more common.
+		<dt>
+			<code>lombok.with.flagUsage</code> = [<code>warning</code> | <code>error</code>] (default: not set)
+		</dt><dd>
+			Lombok will flag any usage of <code>@With</code> as a warning or error if configured.
+		</dd>
+	</@f.confKeys>
+
+	<@f.smallPrint>
+		<p>
+			With methods cannot be generated for static fields because that makes no sense.
+		</p><p>
+			With methods can be generated for abstract classes, but this generates an abstract method with the appropriate signature.
+		</p><p>
+			When applying <code>@With</code> to a type, static fields and fields whose name start with a $ are skipped.
+		</p><p>
+			For generating the method names, the first character of the field, if it is a lowercase character, is title-cased, otherwise, it is left unmodified. Then, <code>with</code> is prefixed.
+		</p><p>
+			No method is generated if any method already exists with the same name (case insensitive) and same parameter count. For example, <code>withX(int x)</code> will not be generated if there's already a method <code>withX(String... x)</code> even though it is technically possible to make the method. This caveat exists to prevent confusion. If the generation of a method is skipped for this reason, a warning is emitted instead. Varargs count as 0 to N parameters.
+		</p><p>
+			Various well known annotations about nullity cause null checks to be inserted and will be copied to the parameter. See <a href="/features/GetterSetter">Getter/Setter</a> documentation's small print for more information.
+		</p><p>
+			If you have configured a nullity annotation flavour via <a href="configuration"><code>lombok.config</code></a> key <code>lombok.addNullAnnotations</code>, the method or return type (as appropriate for the chosen flavour) is annotated with a non-null annotation.
+		</p>
+	</@f.smallPrint>
+</@f.scaffold>

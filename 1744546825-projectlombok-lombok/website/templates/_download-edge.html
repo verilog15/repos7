@@ -1,0 +1,83 @@
+<#import "/_scaffold.html" as main>
+<@main.scaffold title="snapshot">
+	<div class="page-header top5">
+		<div class="row text-center versionInfo">
+			<@main.h1 title="Download 'Edgy Guinea Pig' - the Lombok Cutting Edge build" />
+		</div><div class="row versionInfo">
+			version: ${version} (${timestampString})
+		</div><div class="row" id="changelog">
+			${changelogEdge?no_esc}
+		</div><div class="row text-center">
+			<h2><a href="/lombok-edge.jar" id="downloadLink">Download edge release now!</a></h2>
+			<p class="text-left">
+				You can use the edge release from maven using the projectlombok.org repository.
+				This requires:
+			</p>
+			<ul class="text-left">
+					<li>Adding the lombok maven repository to your <code>repositories</code> section</li>
+					<li>Adding lombok as a dependency to your project in the <code>dependencies</code> section, specifying version <code>edge-SNAPSHOT</code>.</li>
+					<li>Adding lombok as an annotation processor in the <code>annotationProcessorPaths</code> section, specifying version <code>edge-SNAPSHOT</code>.</li>
+			</ul>
+			<p>
+				These sections in your pom file should look like this:
+			</p>
+<pre>
+&lt;repositories&gt;
+	&lt;repository&gt;
+		&lt;id&gt;projectlombok.org&lt;/id&gt;
+		&lt;url&gt;https://projectlombok.org/edge-releases&lt;/url&gt;
+	&lt;/repository&gt;
+&lt;/repositories&gt;</pre>
+<pre>
+&lt;dependencies&gt;
+	&lt;dependency&gt;
+		&lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+		&lt;artifactId&gt;lombok&lt;/artifactId&gt;
+		&lt;version&gt;edge-SNAPSHOT&lt;/version&gt;
+		&lt;scope&gt;provided&lt;/scope&gt;
+	&lt;/dependency&gt;
+&lt;/dependencies&gt;</pre>
+<pre>
+&lt;build&gt;
+	&lt;plugins&gt;
+		&lt;plugin&gt;
+			&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+			&lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+			&lt;configuration&gt;
+				&lt;annotationProcessorPaths&gt;
+					&lt;path&gt;
+						&lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+						&lt;artifactId&gt;lombok&lt;/artifactId&gt;
+						&lt;version&gt;edge-SNAPSHOT&lt;/version&gt;
+					&lt;/path&gt;
+				&lt;/annotationProcessorPaths&gt;
+			&lt;/configuration&gt;
+		&lt;/plugin&gt;
+	&lt;/plugins&gt;
+&lt;/build&gt;</pre>
+			
+			<p>
+				You can use the edge release from gradle using the projectlombok.org repository:
+			</p>
+<pre>
+repositories {
+	mavenCentral()
+	maven { url 'https://projectlombok.org/edge-releases' }
+}
+
+plugins {
+	id 'net.ltgt.apt' version '0.10'
+}
+
+dependencies {
+	compileOnly 'org.projectlombok:lombok:edge-SNAPSHOT'
+	
+	apt 'org.projectlombok:lombok:edge-SNAPSHOT'
+}</pre>
+		</div><div class="row text-center">
+			<p>
+				Cutting edge a bit too gutsy for you? You can grab the <a href="download.html">stable release</a> instead.
+			</p>
+		</div>
+	</div>
+</@main.scaffold>

@@ -1,0 +1,29 @@
+final class ValueStaticField {
+	static int x;
+	static String PASSWORD = "Ken sent me";
+	@java.lang.SuppressWarnings("all")
+	@lombok.Generated
+	public ValueStaticField() {
+	}
+	@java.lang.Override
+	@java.lang.SuppressWarnings("all")
+	@lombok.Generated
+	public boolean equals(final java.lang.Object o) {
+		if (o == this) return true;
+		if (!(o instanceof ValueStaticField)) return false;
+		return true;
+	}
+	@java.lang.Override
+	@java.lang.SuppressWarnings("all")
+	@lombok.Generated
+	public int hashCode() {
+		final int result = 1;
+		return result;
+	}
+	@java.lang.Override
+	@java.lang.SuppressWarnings("all")
+	@lombok.Generated
+	public java.lang.String toString() {
+		return "ValueStaticField()";
+	}
+}

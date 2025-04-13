@@ -1,0 +1,40 @@
+<#import "_setup.html" as s>
+
+<@s.scaffold title="Eclipse, Spring Tool Suite, (Red Hat) JBoss Developer Studio, MyEclipse">
+	<@s.introduction>
+		<p>
+			The <a href="https://eclipse.org/">Eclipse</a> editor is compatible with lombok. Eclipse offshoots are also compatible with lombok, specifically:
+			<ul><li>
+				<a href="https://www.genuitec.com/products/myeclipse/">MyEclipse</a>
+			</li><li>
+				<a href="https://developers.redhat.com/products/devstudio/overview/">Red Hat JBoss Developer Studio</a>
+			</li><li>
+				<a href="https://tools.jboss.org/downloads/devstudio/">JBoss Developer Studio (JBDS)</a>
+			</li><li>
+				<a href="https://spring.io/tools">Spring Tools Suite (STS)</a>
+			</li></ul>
+		</p><p>
+			Double-click lombok.jar (downloadable from this site, or from your maven repository; it's the same jar). This starts the eclipse installer which will find eclipse (and eclipse variants as listed above), and offers to install lombok into these eclipse installations. The same tool can also uninstall lombok: <br />
+
+			<img src="/img/lombok-installer.png" />
+		</p><p>
+			You can check if your eclipse installation is lombok-enabled in eclipse's about dialog. The lombok version will be listed at the end of the copyright text:<br /><br />
+
+			<img src="/img/eclipse-about.png" />
+		</p>
+	</@s.introduction>
+	<@s.section title="Via eclipse plugin installer">
+		<em>WARNING: This plugin installer is currently unsigned, and we have given up on figuring out how to fix that; if team eclipse or somebody else can help us out, we're all ears!</em>
+		<p>
+			You can install lombok directly from within eclipse, and in that way, you can also include lombok as part of your team eclipse deployment configuration. To do this, use
+			update site <code>https://projectlombok.org/p2</code>:<br />
+			<br />
+			<img width="448" height="431" src="/img/eclipse-p2-step1.png" /><br />
+			<br />
+			<br />
+			<img width="626" height="216" src="/img/eclipse-p2-step2.png" />
+		</p>
+		<p><strong>NB: You need to actually quit Eclipse and start it again; the regular restart is not good enough.</strong>
+		</p>
+	</@s.section>
+</@s.scaffold>
