@@ -1,0 +1,13 @@
+---
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: argocd
+nodes:
+  - role: control-plane
+    # It seems that the latest .7 patch release is not available, use latest available one instead
+    image: kindest/node:v1.31.6
+    extraPortMappings:
+      - containerPort: 30123
+        hostPort: 8080
+        listenAddress: "127.0.0.1"
+        protocol: TCP
