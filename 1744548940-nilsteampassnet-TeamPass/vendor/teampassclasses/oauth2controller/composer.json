@@ -1,0 +1,24 @@
+{
+    "name": "teampassclasses/oauth2controller",
+    "description": "Provide Azure Auth.",
+    "type": "library",
+    "license": "GPL-3.0-only",
+    "keywords": [
+        "auth",
+        "azure",
+        "ad"
+    ],
+    "authors": [
+        {
+            "name": "Nils Laumaillé"
+        }
+    ],
+    "require": {
+        "php": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TeampassClasses\\OAuth2Controller\\": "src/"
+        }
+    }
+}
