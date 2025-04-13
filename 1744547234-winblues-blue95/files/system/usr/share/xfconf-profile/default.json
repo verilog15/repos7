@@ -1,0 +1,32 @@
+{
+  "properties": {
+    "xsettings": {
+      "/Net/ThemeName": "Chicago95",
+      "/Net/IconThemeName": "Chicago95",
+      "/Net/EnableEventSounds": true,
+      "/Net/EnableInputFeedbackSounds": true,
+      "/Net/SoundThemeName": "Chicago95"
+    },
+    "xfwm4": {
+      "/general/theme": "Chicago95",
+      "/general/show_dock_shadow": false,
+      "/general/show_frame_shadow": false,
+      "/general/show_popup_shadow": false
+    },
+    "xfce4-keyboard-shortcuts": {
+      "/commands/custom/Super_L": "/usr/bin/xfce4-popup-whiskermenu"
+    },
+    "xfce4-notifyd": {
+      "/theme": "Chicago95",
+      "/notify-location": "bottom-right"
+    },
+    "xfce4-terminal": {
+      "/misc-toolbar-default": true
+    }
+  },
+  "metadata": {
+    "name": "blue95",
+    "author": "winblues",
+    "version": 1
+  }
+}
