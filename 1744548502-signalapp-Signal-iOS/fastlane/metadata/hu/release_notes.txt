@@ -1,0 +1,2 @@
+• Egyszerűbbé tettük a további fotók kiválasztását, ha a korlátozott hozzáférésű fotókhoz való hozzáférés engedélyezve van iOS-en. A Kezelés gombot úgy helyeztük át, hogy mindig látható legyen.
+• Mostantól, ha hang- vagy videohívás közben rákoppintasz egy értesítésre, a hívásablak automatikusan minimálisra csökken, hogy minden további lépés nélkül megjelenjen a megfelelő csevegés.

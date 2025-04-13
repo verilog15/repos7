@@ -1,0 +1,2 @@
+• We hebben het gemakkelijker gemaakt om extra foto's te selecteren wanneer je beperkte toegang tot foto's hebt ingeschakeld in iOS. De knop Beheren is verplaatst zodat deze altijd zichtbaar is.
+• Wanneer je nu op een melding tikt tijdens een spraak- of video-oproep, wordt de oproep automatisch geminimaliseerd om de relevante chat weer te geven zonder extra stappen.

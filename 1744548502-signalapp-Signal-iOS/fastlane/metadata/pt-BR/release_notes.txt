@@ -1,0 +1,2 @@
+• Ficou mais fácil carregar mais fotos quando as permissões de fotos de Acesso Limitado estão ativadas no iOS. O botão Gerenciar foi reposicionado para ficar sempre visível. É super-rápido atualizar a seleção de foto.
+• Agora, quando você toca em uma notificação durante uma chamada de voz ou vídeo, a chamada será minimizada automaticamente para mostrar a conversa relevante. Não precisa de nenhum passo extra.

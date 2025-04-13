@@ -1,0 +1,2 @@
+• Wir haben die Auswahl weiterer Fotos in iOS vereinfacht, wenn die Berechtigung »Beschränkter Zugriff« aktiviert ist. Die Schaltfläche »Verwalten« wurde neu positioniert, sodass sie immer sichtbar ist. Und die Aktualisierung deiner Fotoauswahl erfolgt jetzt blitzschnell.
+Wenn du jetzt während eines Sprach- oder Videoanrufs auf eine Mitteilung tippst, wird der Anruf automatisch minimiert, um den entsprechenden Chat anzuzeigen, ohne dass weitere Schritte erforderlich sind.

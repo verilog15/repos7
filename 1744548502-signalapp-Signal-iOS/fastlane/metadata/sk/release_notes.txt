@@ -1,0 +1,2 @@
+• Zjednodušili sme výber ďalších fotiek, keď sú v systéme iOS zapnuté povolenia na fotky s obmedzeným prístupom. Tlačidlo Spravovať bolo premiestnené tak, aby bolo vždy viditeľné.
+• Keď teraz ťuknete na upozornenie počas hlasového hovoru alebo videohovoru, hovor sa automaticky minimalizuje, aby sa zobrazil príslušný čet bez nutnosti ďalších krokov.

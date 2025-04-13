@@ -1,0 +1,2 @@
+• Vi har gjort det enklere å velge flere bilder når begrenset bildetilgang er aktivert i iOS. Administrer-knappen har også fått en ny plass, slik at den alltid er lett å finne.
+• Når du er i en telefon- eller videosamtale og trykker på et varsel fra en annen samtale, minimeres anropsvinduet automatisk og den andre samtalen dukker opp.

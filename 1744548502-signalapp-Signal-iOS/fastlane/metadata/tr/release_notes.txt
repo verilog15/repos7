@@ -1,0 +1,2 @@
+• iOS'ta Sınırlı Erişimli fotoğraf izinleri etkinleştirildiğinde, ek resim seçmeyi kolaylaştırdık. Yönet düğmesini her zaman görünür olacak şekilde yeniden konumlandırdık ve seçimlerini güncellemeyi flaş hızına ulaştırdık.
+• Artık sesli veya görüntülü arama sırasında bir bildirime dokunduğunda, ekstra bir adıma gerek kalmadan ilgili sohbeti göstermek üzere arama otomatik olarak simge durumuna küçültülür. Yani senin için her şeyi giderek pratikleştiriyoruz!

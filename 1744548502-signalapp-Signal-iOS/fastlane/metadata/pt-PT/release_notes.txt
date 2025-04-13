@@ -1,0 +1,2 @@
+• Tornámos mais fácil selecionar imagens adicionais quando estão ativadas permissões de acesso limitadas no iOS. O botão Gerir foi reposicionado de forma a estar sempre visível.
+• Agora quando toca numa notificação durante uma chamada de voz ou vídeo, a chamada minimiza-se automaticamente para mostrar o chat relevante.

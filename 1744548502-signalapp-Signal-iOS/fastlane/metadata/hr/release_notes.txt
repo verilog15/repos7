@@ -1,0 +1,2 @@
+• Olakšali smo odabir dodatnih fotografija kada su dopuštenja za ograničeni pristup fotografijama omogućena u sustavu iOS. Premjestili smo i gumb Upravljaj da bude uvijek vidljiv.
+• Sada kada dodirnete obavijest tijekom glasovnog poziva ili videopoziva, poziv će se automatski minimizirati kako bi se prikazao razgovor, bez ikakvih dodatnih koraka.

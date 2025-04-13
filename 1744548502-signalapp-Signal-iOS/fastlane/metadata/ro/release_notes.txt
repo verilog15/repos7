@@ -1,0 +1,2 @@
+• Am simplificat selectarea imaginilor suplimentare atunci când permisiunile pentru fotografii cu acces limitat sunt activate în iOS. Butonul Gestionează a fost repoziționat astfel încât să fie mereu vizibil, iar actualizarea selecției alese este atât de rapidă încât nu este niciodată o fotografie.
+• Acum, când atingi o notificare în timpul unui apel vocal sau video, apelul se va minimiza automat pentru a afișa chatul relevant fără pași suplimentari. Economisește pașii suplimentari (mai ales atunci când sunt atingeri) pentru altceva.

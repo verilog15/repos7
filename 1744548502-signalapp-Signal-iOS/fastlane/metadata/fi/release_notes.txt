@@ -1,0 +1,2 @@
+• Olemme tehneet lisäkuvien valitsemisesta helpompaa, kun valokuvien rajoitettu käyttöoikeus on käytössä iOS:ssä. Hallinnoi-painiketta on siirretty niin, että se on aina näkyvissä.
+• Kun nyt napautat ilmoitusta ääni- tai videopuhelun aikana, puhelu pienenee automaattisesti ja näyttää kyseisen keskustelun ilman ylimääräisiä vaiheita.

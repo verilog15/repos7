@@ -1,0 +1,2 @@
+• Vi har gjort det nemmere at vælge flere billeder, når billedtilladelser med "Begrænset adgang" er aktiveret i iOS. Knappen Administration er blevet flyttet, så den altid er synlig, og opdatering af dit valg er blevet lynhurtig.
+• Når du nu trykker på en notifikation under et tale- eller videoopkald, minimeres opkaldet automatisk for at vise den relevante chat uden ekstra trin. Gem dine ekstra trin (især når de er "taps") til stepdans.

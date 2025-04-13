@@ -1,0 +1,2 @@
+• Vi har gjort det enklare att välja ytterligare bilder när Begränsad åtkomst-behörighet för foton är aktiverat i iOS. Hantera-knappen har flyttats så att den alltid är synlig.
+• När du nu trycker på en notis under ett röst- eller videosamtal minimeras samtalet automatiskt för att visa den relevanta chatten utan några extra steg.

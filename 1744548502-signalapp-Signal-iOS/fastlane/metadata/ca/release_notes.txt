@@ -1,0 +1,2 @@
+• Hem fet que sigui més fàcil seleccionar imatges addicionals quan estan habilitats en iOS els permisos de fotos d'Accés Limitat. Hem reubicat el botó de "Gestionar" perquè sigui sempre visible.
+• Ara, quan toquis sobre una notificació durant una trucada de veu o vídeo, aquesta es minimitzarà automàticament per mostrar el xat en qüestió sense que hagis de fer res més.

@@ -1,0 +1,2 @@
+Chúng tôi đã đơn giản hóa việc chọn thêm ảnh khi bật Quyền truy cập hạn chế đối với ảnh trong iOS. Nút Quản lý được đặt lại vị trí để bạn luôn có thể nhìn thấy.
+Giờ đây, khi bạn chạm vào thông báo trong cuộc gọi thoại hoặc video, cuộc gọi sẽ tự động thu nhỏ để hiển thị cuộc trò chuyện liên quan mà không cần thêm bước nào.

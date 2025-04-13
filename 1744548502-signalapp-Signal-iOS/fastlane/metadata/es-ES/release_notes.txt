@@ -1,0 +1,2 @@
+• Hemos facilitado la selección de más imágenes cuando tienes activado el permiso de acceso limitado a fotos en iOS. Ahora el botón Gestionar está siempre visible y actualizar tu selección será tan rápido que te parecerá un truco de magia.
+• Ahora, cuando toques una notificación durante una llamada o videollamada, la pantalla se minimizará automáticamente para mostrar el chat en cuestión sin que tengas que hacer nada más. Así, podrás guardar tus energías para tocar teclas más interesantes, como las de un piano.

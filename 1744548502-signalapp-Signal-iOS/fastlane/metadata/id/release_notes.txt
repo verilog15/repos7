@@ -1,0 +1,2 @@
+• Makin mudah memilih foto tambahan saat pengaturan akses foto dibatasi di iOS. Posisi tombol "Kelola" diubah agar selalu terlihat dan Anda bisa memperbarui pilihan foto dengan sangat cepat.
+• Kini, jika Anda mengetuk notifikasi saat panggilan suara atau video berlangsung, panggilan tersebut otomatis diperkecil dan layar akan menampilkan chat terkait. Tidak ada langkah tambahan, jadi Anda bisa lebih hemat waktu.

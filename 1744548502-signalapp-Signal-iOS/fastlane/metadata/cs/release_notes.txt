@@ -1,0 +1,2 @@
+• Zjednodušili jsme výběr dalších obrázků, když je v systému iOS povolen omezený přístup k fotografiím. Tlačítko pro správu bylo přemístěno tak, aby bylo vždy viditelné.
+• Nyní když během hlasového hovoru nebo videohovoru klepnete na oznámení, hovor se automaticky minimalizuje a zobrazí se příslušný chat bez nutnosti dalších kroků.

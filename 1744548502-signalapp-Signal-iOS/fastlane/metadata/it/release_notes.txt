@@ -1,0 +1,2 @@
+• Da ora è più semplice scegliere foto aggiuntive se hai scelto di autorizzare solo un accesso limitato al rullino foto su iOS. Il pulsante per gestire le foto è stato riposizionato così da renderlo sempre visibile e selezionare nuove foto è ormai una questione di attimi!
+• Ora quando tocchi su una notifica durante una chiamata vocale o una videochiamata, la chiamata viene minimizzata per mostrare la chat in questione. E avviene tutto in automatico: che belli i progressi della tecnologia, vero?
