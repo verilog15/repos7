@@ -1,0 +1,74 @@
+--- a/source/blender/blendthumb/CMakeLists.txt
++++ b/source/blender/blendthumb/CMakeLists.txt
+@@ -36,8 +29,12 @@
+ 
+   add_library(BlendThumb SHARED ${SRC} ${SRC_WIN32})
+ 
+-  target_link_libraries(BlendThumb bf_blenlib dbghelp.lib Version.lib)
+-  set_target_properties(BlendThumb PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB:msvcrt")
++  target_link_libraries(BlendThumb bf_blenlib dbghelp version shlwapi)
++  if(MSVC)
++    set_target_properties(BlendThumb PROPERTIES LINK_FLAGS_DEBUG "/NODEFAULTLIB:msvcrt")
++  elseif(MINGW)
++    target_link_libraries(BlendThumb ${PTHREADS_LIBRARIES})
++  endif()
+ 
+ else()
+   # -----------------------------------------------------------------------------
+--- a/source/blender/blenlib/intern/winstuff.c
++++ b/source/blender/blenlib/intern/winstuff.c
+@@ -233,7 +233,11 @@
+     char system_dir[FILE_MAXDIR];
+     BLI_windows_get_executable_dir(install_dir);
+     GetSystemDirectory(system_dir, sizeof(system_dir));
++#ifdef __MINGW32__
++    const char *thumbnail_handler = "libBlendThumb.dll";
++#else
+     const char *thumbnail_handler = "BlendThumb.dll";
++#endif
+     SNPRINTF(reg_cmd, "%s\\regsvr32 /s \"%s\\%s\"", system_dir, install_dir, thumbnail_handler);
+     system(reg_cmd);
+   }
+@@ -285,7 +289,11 @@
+     char system_dir[FILE_MAXDIR];
+     BLI_windows_get_executable_dir(install_dir);
+     GetSystemDirectory(system_dir, sizeof(system_dir));
++#ifdef __MINGW32__
++    const char *thumbnail_handler = "libBlendThumb.dll";
++#else
+     const char *thumbnail_handler = "BlendThumb.dll";
++#endif
+     SNPRINTF(reg_cmd, "%s\\regsvr32 /u /s \"%s\\%s\"", system_dir, install_dir, thumbnail_handler);
+     system(reg_cmd);
+   }
+--- a/source/blender/blendthumb/src/blendthumb_win32.cc
++++ b/source/blender/blendthumb/src/blendthumb_win32.cc
+@@ -18,7 +18,9 @@
+ 
+ #include "BLI_filereader.h"
+ 
++#ifdef _MSC_VER
+ #pragma comment(lib, "shlwapi.lib")
++#endif
+ 
+ /**
+  * This thumbnail provider implements #IInitializeWithStream to enable being hosted
+--- a/source/creator/CMakeLists.txt
++++ b/source/creator/CMakeLists.txt
+@@ -718,9 +718,14 @@
+       DESTINATION "./share/icons/hicolor/symbolic/apps"
+     )
+     if(WITH_BLENDER_THUMBNAILER)
++      if(MINGW)
++        set(BLENDER_THUMBNAILER_TARGET BlendThumb)
++      else()
++        set(BLENDER_THUMBNAILER_TARGET blender-thumbnailer)
++      endif()
+       install(
+-        TARGETS blender-thumbnailer
+-        DESTINATION "./bin"
++        TARGETS ${BLENDER_THUMBNAILER_TARGET}
++        RUNTIME DESTINATION bin
+       )
+     endif()
+   endif()

@@ -1,0 +1,74 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=simdjson
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=3.12.3
+pkgrel=2
+pkgdesc="A C++ library to see how fast we can parse JSON with complete validation (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'aur: simdjson'
+)
+msys2_repository_url='https://github.com/simdjson/simdjson/'
+url='https://simdjson.org/'
+license=('spdx:Apache-2.0')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+source=("${_realname}-${pkgver}.tar.gz::https://github.com/simdjson/simdjson/archive/v${pkgver}.tar.gz")
+sha512sums=('4faec35e2697de4a68c08a3af8434da52dc2fe448e501766146f89f4daaeae4fe928dd895b3526716c5972320dd83bab89172f6fb22ff8cd8b9abd47f6eeef78')
+
+build() {
+  mkdir -p "${srcdir}/build-dynamic-${MSYSTEM}" && cd "${srcdir}/build-dynamic-${MSYSTEM}"
+
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G "Ninja" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    "${_extra_config[@]}" \
+    -DBUILD_SHARED_LIBS=ON \
+    "../${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+  
+  mkdir -p "${srcdir}/build-static-${MSYSTEM}" && cd "${srcdir}/build-static-${MSYSTEM}"
+  
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G "Ninja" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    "${_extra_config[@]}" \
+    -DBUILD_SHARED_LIBS=OFF \
+    "../${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+}
+
+check() {
+  cd "${srcdir}/build-dynamic-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/ctest.exe ./ || true
+
+  cd "${srcdir}/build-static-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/ctest.exe ./ || true
+}
+
+package() {
+  cd "${srcdir}/build-static-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  cd "${srcdir}/build-dynamic-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README.md" "${pkgdir}${MINGW_PREFIX}/share/doc/${_realname}/README.md"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

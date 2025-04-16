@@ -1,0 +1,64 @@
+# Maintainer: Jürgen Pfeifer <juergen@familiepfeifer.de>
+
+_realname=mhook
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=r7.a159eed
+pkgrel=2
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64')
+pkgdesc="An API hooking library (mingw-w64)"
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "git")
+license=('custom')
+url="https://github.com/SirAnthony/mhook"
+source=("${_realname}"::"git+https://github.com/SirAnthony/mhook.git"
+        010-char.patch)
+sha256sums=('SKIP'
+            '2874a5fdbb7ee717c001a7f2cee0f4fa9f60a38bc7ce1589d978b237b1cec884')
+
+pkgver() {
+  cd "${srcdir}/${_realname}"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "${srcdir}/${_realname}"
+  patch -p1 -i "${srcdir}"/010-char.patch
+}
+
+build() {
+  cd "${srcdir}"
+  mkdir -p build-${MSYSTEM} && cd build-${MSYSTEM}
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake \
+    -G "MSYS Makefiles" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DMHOOK_TESTS=ON \
+    ../${_realname}
+  make V=1
+}
+
+check()
+{
+  cd "${srcdir}/build-${MSYSTEM}"
+  ./mhook-tests
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  mkdir -p "${pkgdir}"${MINGW_PREFIX}/lib/
+  mkdir -p "${pkgdir}"${MINGW_PREFIX}/include/
+  mkdir -p "${pkgdir}"${MINGW_PREFIX}/share/licenses/$_realname
+
+  cp libmhook.a "${pkgdir}"${MINGW_PREFIX}/lib/
+  cp "${srcdir}"/${_realname}/${_realname}-lib/${_realname}.h \
+    "${pkgdir}"${MINGW_PREFIX}/include/
+  cp -pf "${srcdir}"/${_realname}/COPYING* \
+    "${pkgdir}"${MINGW_PREFIX}/share/licenses/$_realname
+}

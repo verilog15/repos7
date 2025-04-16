@@ -1,0 +1,38 @@
+# Maintainer: Andrew Sun <adsun701@gmail.com>
+
+_realname=greenlet
+pkgbase=mingw-w64-python-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
+pkgver=3.1.1
+pkgrel=1
+pkgdesc="Lightweight in-process concurrent programming (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://greenlet.readthedocs.io"
+msys2_repository_url="https://github.com/python-greenlet/greenlet/"
+msys2_references=(
+  'purl: pkg:pypi/greenlet'
+)
+license=('spdx:MIT')
+depends=("${MINGW_PACKAGE_PREFIX}-python")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-python-build"
+             "${MINGW_PACKAGE_PREFIX}-python-installer"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools")
+source=("https://pypi.org/packages/source/${_realname::1}/${_realname}/${_realname}-${pkgver}.tar.gz")
+sha256sums=('4ce3ac6cdb6adf7946475d7ef31777c26d94bccc377e070a7986bd2d5c515467')
+
+build() {
+  cp -r "${_realname}-${pkgver}" "python-build-${MSYSTEM}" && cd "python-build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+package() {
+  cd "${srcdir}/python-build-${MSYSTEM}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    ${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
+    --destdir="${pkgdir}" dist/*.whl
+
+  install -Dm0644 LICENSE.PSF "${pkgdir}"${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE.PSF
+}

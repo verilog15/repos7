@@ -1,0 +1,180 @@
+name: main
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    if: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master'}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { msystem: UCRT64, runner: windows-2025},
+          { msystem: CLANG64, runner: windows-2025},
+          { msystem: MINGW64, runner: windows-2025},
+          { msystem: MINGW32, runner: windows-2025},
+          { msystem: CLANGARM64, runner: windows-11-arm}
+        ]
+    name: ${{ matrix.msystem }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Gather Facts
+        id: facts
+        run : |
+          Get-PSDrive -PSProvider FileSystem | Format-Table -AutoSize -Wrap
+          Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
+          $BUILD_DRIVE = Split-Path $env:GITHUB_WORKSPACE -Qualifier
+          echo "drive=$BUILD_DRIVE" >> $env:GITHUB_OUTPUT
+
+      - name: Setup JIT minidump
+        if: ${{ matrix.msystem != 'CLANGARM64' }}
+        run: |
+          Set-Location '${{ runner.temp }}'
+          Invoke-WebRequest -Uri 'https://download.sysinternals.com/files/Procdump.zip' -OutFile Procdump.zip
+          Expand-Archive Procdump.zip -DestinationPath .
+          New-Item -Path '_dumps' -ItemType Directory
+          .\procdump64.exe -accepteula -ma -i "${{ runner.temp }}/_dumps"
+          .\procdump.exe -accepteula -ma -i "${{ runner.temp }}/_dumps"
+
+      - name: Configure Pagefile
+        if: ${{ matrix.msystem != 'CLANGARM64' }}
+        # https://github.com/al-cheb/configure-pagefile-action/issues/16
+        continue-on-error: true
+        uses: al-cheb/configure-pagefile-action@v1.4
+        with:
+          minimum-size: 4GB
+          maximum-size: 16GB
+          # Needs to be C:, see https://github.com/al-cheb/configure-pagefile-action/issues/18
+          disk-root: "C:"
+
+      - uses: actions/checkout@v4
+        with:
+          path: temp
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          install: git python base-devel
+          update: true
+          location: '${{ steps.facts.outputs.drive }}\M'
+
+      - name: Add staging repo
+        shell: msys2 {0}
+        run: |
+          cp /etc/pacman.conf /etc/pacman.conf.bak
+          grep -qFx '[staging]' /etc/pacman.conf || sed -i '/^# \[staging\]/,/^$/ s|^# ||g' /etc/pacman.conf
+
+      - name: Update using staging
+        run: |
+          msys2 -c 'pacman --noconfirm -Suuy'
+          msys2 -c 'pacman --noconfirm -Suu'
+
+      - name: Move Checkout
+        run: |
+          $path = "${{ steps.facts.outputs.drive }}\_"
+          If (Test-Path "$path") { rm -r -fo "$path" }
+          Move-Item -Path ".\temp" -Destination "$path"
+
+      - name: CI-Build
+        shell: msys2 {0}
+        id: build
+        run: |
+          cd "$(cygpath '${{ steps.facts.outputs.drive }}/_')"
+          MINGW_ARCH=${{ matrix.msystem }} ./.ci/ci-build.sh
+
+      - name: "Upload binaries"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.msystem }}-packages
+          path: ${{ steps.facts.outputs.drive }}/_/artifacts/*.pkg.tar.*
+          if-no-files-found: ignore
+
+      - name: "Upload dumps"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.msystem }}-dumps
+          path: ${{ runner.temp }}/_dumps/*.dmp
+          if-no-files-found: ignore
+
+      - name: "Clean up runner"
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          If (Test-Path "${{ steps.facts.outputs.drive }}\_") { rm -r -fo "${{ steps.facts.outputs.drive }}\_" }
+          msys2 -c 'mv -f /etc/pacman.conf.bak /etc/pacman.conf'
+          msys2 -c 'pacman --noconfirm -Suuy'
+          msys2 -c 'pacman --noconfirm -Suu'
+
+  check:
+    needs: [build]
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: UCRT64-packages
+          path: ${{ runner.temp }}/artifacts
+      - name: Check whether to Run
+        id: check-run
+        run: |
+          python .ci/ci-check.py --whether-to-run "${{ runner.temp }}/artifacts"
+      - uses: msys2/setup-msys2@v2
+        if: steps.check-run.outputs.run == 'true'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-python-pip mingw-w64-ucrt-x86_64-python-pacdb
+      - name: Add staging repo
+        if: steps.check-run.outputs.run == 'true'
+        shell: msys2 {0}
+        run: |
+          sed -i '1s|^|[staging]\nServer = https://repo.msys2.org/staging/\nSigLevel = Never\n|' /etc/pacman.conf
+      - name: Update using staging
+        if: steps.check-run.outputs.run == 'true'
+        run: |
+          msys2 -c 'pacman --noconfirm -Suuy'
+          msys2 -c 'pacman --noconfirm -Suu'
+      - name: Run Checks
+        if: steps.check-run.outputs.run == 'true'
+        shell: msys2 {0}
+        run: |
+          python .ci/ci-check.py "${{ runner.temp }}/artifacts"
+
+  package-grokker:
+    runs-on: ubuntu-latest
+    needs: build
+    name: package-grokker-${{ matrix.msystem }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: UCRT64
+            repo: ucrt64
+          - msystem: CLANG64
+            repo: clang64
+
+    steps:
+      - uses: actions/download-artifact@v4
+        id: artifacts
+        continue-on-error: true
+        with:
+          name: ${{ matrix.msystem }}-packages
+          path: artifacts
+      - name: Grok packages
+        uses: jeremyd2019/package-grokker/grok-artifacts@main
+        if: steps.artifacts.outcome == 'success'
+        with:
+          repo: ${{ matrix.repo }}
+          path: artifacts

@@ -1,0 +1,55 @@
+# Maintainer: Konstantin Podsvirov <konstantin@podsvirov.su>
+
+_realname=spatialite-gui
+_wx_basever=3.0
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+_pkgver=2.1.0-beta1
+pkgver=${_pkgver/-beta1/}
+pkgrel=10
+pkgdesc='spatialite-gui is an open source Graphical User Interface (GUI) tool supporting SpatiaLite (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64')
+url='https://www.gaia-gis.it/fossil/spatialite_gui/index'
+license=('spdx:GPL-3.0-or-later')
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-cc"
+  "${MINGW_PACKAGE_PREFIX}-autotools"
+  "${MINGW_PACKAGE_PREFIX}-wxwidgets${_wx_basever}-msw"
+)
+depends=("${MINGW_PACKAGE_PREFIX}-libspatialite"
+         "${MINGW_PACKAGE_PREFIX}-librasterlite2"
+         "${MINGW_PACKAGE_PREFIX}-libxlsxwriter"
+         "${MINGW_PACKAGE_PREFIX}-proj"
+         "${MINGW_PACKAGE_PREFIX}-virtualpg"
+         "${MINGW_PACKAGE_PREFIX}-wxwidgets${_wx_basever}-msw-libs")
+_realpath=${_realname/-/_}-${_pkgver}
+source=("${_realpath}.tar.gz::https://www.gaia-gis.it/gaia-sins/${_realname}-sources/${_realpath}.tar.gz"
+        '001-spatialite-gui-2.1.0-install-icons.patch')
+sha256sums=('ba48d96df18cebc3ff23f69797207ae1582cce62f4596b69bae300ca3c23db33'
+            '47fee2ec40c6d43db9ce1351ad3aea66c6de74579c9f65dda77538ba22455ce5')
+
+prepare() {
+  cd "${srcdir}/${_realpath}"
+
+  patch -p0 -i "${srcdir}"/001-spatialite-gui-2.1.0-install-icons.patch
+
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  ../${_realpath}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --with-wxconfig=${MINGW_PREFIX}/bin/wx-config-${_wx_basever}
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,100 @@
+# Maintainer: Johannes Schindelin <johannes.schindelin@gmx.de>
+
+_realname=jj
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-docs")
+pkgver=0.28.2
+pkgrel=1
+pkgdesc="Jujutsu (an experimental VCS) (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://github.com/jj-vcs/jj"
+msys2_documentation_url="https://jj-vcs.github.io/jj/latest"
+msys2_references=(
+  'archlinux: jujutsu'
+  'purl: pkg:cargo/jj-cli'
+)
+license=('spdx:Apache-2.0')
+makedepends=("${MINGW_PACKAGE_PREFIX}-rust"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-openssl"
+             'git')
+depends=("${MINGW_PACKAGE_PREFIX}-libgit2"
+         "${MINGW_PACKAGE_PREFIX}-libssh2")
+source=("git+${url}.git#tag=v${pkgver}")
+sha256sums=('c6b88a7aab49a1b60d3c9397f93f7077ac85f77027f4e28477e96a874aecdf6b')
+
+_env() {
+  export OPENSSL_NO_VENDOR=1
+  export LIBGIT2_NO_VENDOR=1
+  export LIBSSH2_SYS_USE_PKG_CONFIG=1
+}
+
+prepare() {
+  cd "${_realname}"
+
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "${_realname}"
+
+  _env
+  cargo build \
+    -p jj-cli \
+    --release \
+    --frozen \
+    --features packaging
+}
+
+check() {
+  cd "${_realname}"
+
+  _env
+  cargo test \
+    -p jj-cli \
+    --release \
+    --frozen \
+    --features packaging
+}
+
+package_jj() {
+  cd "${_realname}"
+
+  _env
+  cargo install \
+    --frozen \
+    --offline \
+    --no-track \
+    --path cli \
+    --root "${pkgdir}${MINGW_PREFIX}" \
+    --features packaging
+
+  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+
+  local _complete="target/release/jj util completion"
+  $_complete bash | install -Dm644 /dev/stdin "${pkgdir}${MINGW_PREFIX}/share/bash-completion/completions/jj"
+  $_complete fish | install -Dm644 /dev/stdin "${pkgdir}${MINGW_PREFIX}/share/fish/vendor_completions.d/jj.fish"
+  $_complete zsh | install -Dm644 /dev/stdin "${pkgdir}${MINGW_PREFIX}/share/zsh/site-functions/_jj"
+}
+
+package_jj-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  install -Dm644 "${_realname}"/README.md "${pkgdir}${MINGW_PREFIX}/share/doc/${_realname}/README.md"
+  cp -r "${_realname}"/docs "${pkgdir}${MINGW_PREFIX}/share/doc/${_realname}"
+}
+
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;

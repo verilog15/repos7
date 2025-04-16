@@ -1,0 +1,86 @@
+# Maintainer: Jianfeng Liu <liujianfeng1994@gmail.com>
+# Contributor: Olivier Michel <Olivier.Michel@cyberbotics.com>
+# Contributor: Andrew Sun <adsun701@gmail.com>
+
+_realname=libzip
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.11.3
+pkgrel=1
+pkgdesc="A C library for reading, creating, and modifying zip archives (mingw-w64)"
+url='https://libzip.org/'
+msys2_repository_url='https://github.com/nih-at/libzip/'
+msys2_references=(
+  "cpe: cpe:/a:libzip:libzip"
+  "cpe: cpe:/a:nih:libzip"
+)
+license=('spdx:BSD-3-Clause')
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+depends=("${MINGW_PACKAGE_PREFIX}-bzip2"
+         "${MINGW_PACKAGE_PREFIX}-gnutls"
+         "${MINGW_PACKAGE_PREFIX}-nettle"
+         "${MINGW_PACKAGE_PREFIX}-xz"
+         "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-zstd")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "groff")
+source=("https://libzip.org/download/${_realname}-${pkgver}.tar.xz"
+        "0001-libzip-pkgconfig-add-cflags-private.patch")
+sha512sums=('7ad7e5f04f28e777604833e702aaa68d603b9895e70d6ee9e587549eb628a89e5569aca0ea255f82de1adb8f4599b828c63dd282eb15a5ea55a147aa7df7b2a4'
+            '5426b438300441c5fd36d1497f9a8a453f773a5ebd4e0affe90dc3933d84ec1f0f168e27b2c3b62587927f88c0c5cae3fc7bc6aee00d98116098d585ceeb7716')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  # https://github.com/nih-at/libzip/pull/434
+  patch -p1 -i "${srcdir}/0001-libzip-pkgconfig-add-cflags-private.patch"
+}
+
+build() {
+  # Workaround for gcc 14 compiler error
+  CFLAGS+=" -Wno-error=incompatible-pointer-types"
+
+  mkdir -p "${srcdir}"/build-${MSYSTEM}-shared && cd "${srcdir}"/build-${MSYSTEM}-shared
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DENABLE_COMMONCRYPTO=OFF \
+    -DENABLE_GNUTLS=ON \
+    -DENABLE_OPENSSL=OFF \
+    -DENABLE_MBEDTLS=OFF \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+
+  mkdir -p "${srcdir}"/build-${MSYSTEM}-static && cd "${srcdir}"/build-${MSYSTEM}-static
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DENABLE_COMMONCRYPTO=OFF \
+    -DENABLE_GNUTLS=ON \
+    -DENABLE_OPENSSL=OFF \
+    -DENABLE_MBEDTLS=OFF \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+}
+
+package() {
+  # Static Install
+  cd "${srcdir}/build-${MSYSTEM}-static"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  # Shared Install
+  cd "${srcdir}/build-${MSYSTEM}-shared"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  install -Dm644 "${srcdir}"/${_realname}-${pkgver}/LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

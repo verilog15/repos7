@@ -1,0 +1,80 @@
+# Maintainer: Christoph Reiter <reiter.christoph@gmail.com>
+
+_realname=rav1e
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.7.1
+pkgrel=7
+pkgdesc='An AV1 encoder focused on speed and safety (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'archlinux: rav1e'
+  'purl: pkg:cargo/rav1e'
+)
+url=https://github.com/xiph/rav1e/
+license=('spdx:BSD-2-Clause')
+makedepends=("${MINGW_PACKAGE_PREFIX}-rust"
+             "${MINGW_PACKAGE_PREFIX}-cargo-c"
+             $([[ "${CARCH}" == "aarch64"  ]] || echo "${MINGW_PACKAGE_PREFIX}-nasm"))
+source=("https://github.com/xiph/rav1e/archive/v${pkgver}/${_realname}-${pkgver}.tar.gz"
+        "https://github.com/xiph/rav1e/releases/download/v${pkgver}/Cargo.lock")
+sha256sums=('da7ae0df2b608e539de5d443c096e109442cdfa6c5e9b4014361211cf61d030c'
+            '4482976bfb7647d707f9a01fa1a3848366988f439924b5c8ac7ab085fba24240')
+
+prepare() {
+  cp Cargo.lock "${_realname}-${pkgver}"
+  cd "${_realname}-${pkgver}"
+
+  cargo update -p cc
+  cargo fetch --locked
+}
+
+build() {
+  cd "${_realname}-${pkgver}"
+
+  export WINAPI_NO_BUNDLED_LIBRARIES=1
+  cargo build \
+    --release \
+    --frozen \
+    --offline
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    cargo capi build \
+      --meson-paths \
+      --release \
+      --frozen \
+      --prefix="${MINGW_PREFIX}"
+}
+
+check() {
+  cd "${_realname}-${pkgver}"
+
+  cargo test \
+    --release \
+    --frozen
+}
+
+package() {
+  cd "${_realname}-${pkgver}"
+
+  cargo install \
+    --frozen \
+    --offline \
+    --no-track \
+    --path . \
+    --root "${pkgdir}${MINGW_PREFIX}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    cargo capi install \
+      --meson-paths \
+      --release \
+      --frozen \
+      --prefix="${MINGW_PREFIX}" \
+      --destdir="${pkgdir}"
+
+  # Remove def file
+  rm -f "${pkgdir}"${MINGW_PREFIX}/lib/*.def
+
+  install -Dm644 LICENSE PATENTS -t "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/"
+}

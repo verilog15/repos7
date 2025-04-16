@@ -1,0 +1,106 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=poco
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.13.0
+pkgrel=1
+pkgdesc="POrtable COmponents C++ Libraries (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64')
+url="https://pocoproject.org/"
+msys2_references=(
+  "cpe: cpe:2.3:a:pocoproject:poco"
+)
+license=('spdx:BSL-1.0')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf"
+             # workaround lack of windmc in llvm
+             $([[ ${MINGW_PACKAGE_PREFIX} != *-clang-* ]] || echo "binutils")) 
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         #"${MINGW_PACKAGE_PREFIX}-apr"
+         #"${MINGW_PACKAGE_PREFIX}-apr-util"
+         "${MINGW_PACKAGE_PREFIX}-expat"
+         "${MINGW_PACKAGE_PREFIX}-libmariadbclient"
+         "${MINGW_PACKAGE_PREFIX}-openssl"
+         "${MINGW_PACKAGE_PREFIX}-pcre2"
+         "${MINGW_PACKAGE_PREFIX}-postgresql"
+         "${MINGW_PACKAGE_PREFIX}-sqlite3"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+source=(https://pocoproject.org/releases/${_realname}-${pkgver}/${_realname}-${pkgver}-all.tar.bz2
+        001-fix-build-on-mingw.patch
+        011-cmake-mingw.patch)
+sha256sums=('93d3a810064c25f1e8b24452602e42bc528474258458f388f9de2f787d5170ab'
+            'daf531ab8ed72a86a02ddfcb916e113155b7a872b65116907f4d3be6e4997afe'
+            '8b4c1abc1fc635229333632a36c3f7850f2de70b9ba91db06d7c9aebcecc5ef1')
+
+_apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -p1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  cd "${srcdir}"/${_realname}-${pkgver}-all
+  _apply_patch_with_msg \
+    001-fix-build-on-mingw.patch \
+    011-cmake-mingw.patch
+}
+
+build() {
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  mkdir -p "${srcdir}/build-${MSYSTEM}-static" && cd "${srcdir}/build-${MSYSTEM}-static"
+
+  CFLAGS+=" -DPCRE2_STATIC" \
+  CXXFLAGS+=" -DPCRE2_STATIC" \
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    "${_extra_config[@]}" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DPOCO_UNBUNDLED=ON \
+    -DENABLE_MONGODB=OFF \
+    -DENABLE_DATA_ODBC=OFF \
+    -DPOCO_DATA_NO_SQL_PARSER=ON \
+    ../${_realname}-${pkgver}-all
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+
+  mkdir -p "${srcdir}/build-${MSYSTEM}-shared" && cd "${srcdir}/build-${MSYSTEM}-shared"
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    "${_extra_config[@]}" \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_DLL_NAME_WITH_SOVERSION=ON \
+    -DPOCO_UNBUNDLED=ON \
+    -DENABLE_MONGODB=OFF \
+    -DENABLE_DATA_ODBC=OFF \
+    -DPOCO_DATA_NO_SQL_PARSER=ON \
+    ../${_realname}-${pkgver}-all
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}-static"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  cd "${srcdir}/build-${MSYSTEM}-shared"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}-all/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

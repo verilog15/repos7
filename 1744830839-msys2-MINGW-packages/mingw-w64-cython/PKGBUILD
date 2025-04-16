@@ -1,0 +1,43 @@
+# Contributor: Runar Tenfjord < runar dot tenfjord at gmail dot com >
+# Contributor: Ray Donnelly <mingw.android@gmail.com>
+
+_realname=cython
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-cython")
+pkgver=3.0.11
+pkgrel=2
+pkgdesc="C-Extensions for Python (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://cython.org/"
+msys2_repository_url="https://github.com/cython/cython"
+msys2_references=(
+  "purl: pkg:pypi/cython"
+)
+license=('spdx:Apache-2.0')
+depends=("${MINGW_PACKAGE_PREFIX}-python")
+makedepends=("${MINGW_PACKAGE_PREFIX}-python-build"
+             "${MINGW_PACKAGE_PREFIX}-python-installer"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+conflicts=("${MINGW_PACKAGE_PREFIX}-cython0")
+options=(!strip)
+source=("https://pypi.org/packages/source/${_realname::1}/${_realname}/${_realname}-${pkgver}.tar.gz")
+sha256sums=('7146dd2af8682b4ca61331851e6aebce9fe5158e75300343f80c07ca80b1faff')
+
+build() {
+  cp -r "${_realname}-${pkgver}" "python-build-${MSYSTEM}" && cd "python-build-${MSYSTEM}"
+
+  ${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+package() {
+  cd "${srcdir}/python-build-${MSYSTEM}"
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    ${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
+    --destdir="${pkgdir}" dist/*.whl
+
+  # Remove a warning about srcdir
+  _src="$(cygpath -m $srcdir)"
+  find "${pkgdir}"/ -name "*.txt" -exec sed -e "s|$_src\/||g" -e "s|python-build-${MSYSTEM}\/||g" -i {} \;
+}

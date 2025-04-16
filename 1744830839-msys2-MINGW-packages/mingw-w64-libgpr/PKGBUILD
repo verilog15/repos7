@@ -1,0 +1,38 @@
+# Maintainer: Fabien Chouteau <chouteau@adacore.com>
+
+_realname=libgpr
+pkgbase=mingw-w64-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
+pkgver=25.0.0
+pkgrel=1
+pkgdesc="Library for GPRbuild project files (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64')
+url="https://github.com/AdaCore/gprbuild/"
+msys2_references=(
+  'aur: libgpr'
+)
+license=('spdx:GPL-3.0-or-later WITH GCC-exception-3.1')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-gcc-ada"
+         "${MINGW_PACKAGE_PREFIX}-xmlada")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gprbuild")
+source=("https://github.com/AdaCore/gprbuild/archive/v${pkgver}/gprbuild-${pkgver}.tar.gz")
+sha256sums=('d12f94c1ec0b6e219f6b162f71f57129d22426e7798092f5f85b9ec2cc818bf1')
+
+build() {
+  [[ -d "${srcdir}"/build-${MSYSTEM} ]] && rm -rf "${srcdir}"/build-${MSYSTEM}
+  cp -r "${srcdir}/gprbuild-${pkgver}" "${srcdir}"/build-${MSYSTEM}
+  cd "${srcdir}"/build-${MSYSTEM}
+
+  make libgpr.build
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+
+  make libgpr.install prefix="${pkgdir}${MINGW_PREFIX}"
+
+  # Copy License Files
+  install -Dm644 -t "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/" COPYING*
+}

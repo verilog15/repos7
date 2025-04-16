@@ -1,0 +1,66 @@
+# Maintainer: Konstantin Podsvirov <konstantin@podsvirov.su>
+
+_variant=-${KF5_VARIANT:-shared}
+source "$(dirname ${BASH_SOURCE[0]})"/../mingw-w64-PKGBUILD-common/kde-frameworks5
+_realname=ktouch
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=24.12.3
+pkgrel=1
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'archlinux: ktouch'
+)
+msys2_repository_url="https://invent.kde.org/education/ktouch/"
+url="https://apps.kde.org/ktouch/"
+license=('GPL' 'LGPL' 'FDL')
+pkgdesc="Touch Typing Tutor (mingw-w64)"
+groups=("${MINGW_PACKAGE_PREFIX}-kde-applications"
+        "${MINGW_PACKAGE_PREFIX}-kde-education")
+depends=("${MINGW_PACKAGE_PREFIX}-kqtquickcharts"
+         "${MINGW_PACKAGE_PREFIX}-kcmutils-qt5"
+         "${MINGW_PACKAGE_PREFIX}-hicolor-icon-theme"
+         "${MINGW_PACKAGE_PREFIX}-qt5-quickcontrols2"
+         "${MINGW_PACKAGE_PREFIX}-qt5-graphicaleffects"
+         "${MINGW_PACKAGE_PREFIX}-qt5-xmlpatterns")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-extra-cmake-modules"
+             "${MINGW_PACKAGE_PREFIX}-kdoctools-qt5${_namesuff}")
+optdepends=("${MINGW_PACKAGE_PREFIX}-breeze-icons: application icon theme")
+source=("https://download.kde.org/stable/release-service/${pkgver}/src/${_realname}-${pkgver}.tar.xz"{,.sig})
+sha256sums=('c59edd722c425e0df86efccf0d79f7883d82c5baaf0673165051f5e13aaa1feb'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}${_variant}" && cd "${srcdir}/build-${MSYSTEM}${_variant}"
+
+  local -a extra_config
+
+  if [ "${_variant}" = "-static" ]; then
+    extra_config+=( -DBUILD_SHARED_LIBS=NO )
+  fi
+
+  _kde_f5_build_env
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G"Ninja" \
+    -DCMAKE_BUILD_TYPE=$(_kde_f5_CMAKE_BUILD_TYPE) \
+    "${_kde_f5_KDE_INSTALL_DIRS[@]}" \
+    -DBUILD_TESTING=OFF \
+    -DECM_DIR=${MINGW_PREFIX}/share/ECM \
+    "${extra_config[@]}" \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build .
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}${_variant}"
+
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install .
+}

@@ -1,0 +1,54 @@
+# Maintainer: Andrea Zagli <andrea.zagli.free@gmail.com>
+
+_realname=eog-plugins
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=3.26.5
+pkgrel=5
+pkgdesc="Eye of GNOME graphics viewer program - plugins (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://wiki.gnome.org/Apps/EyeOfGnome/Plugins"
+msys2_repository_url="https://gitlab.gnome.org/GNOME/eog-plugins"
+license=("spdx:GPL-2.0-or-later")
+depends=("${MINGW_PACKAGE_PREFIX}-eog"
+         "${MINGW_PACKAGE_PREFIX}-libexif"
+         "${MINGW_PACKAGE_PREFIX}-libgdata"
+         "${MINGW_PACKAGE_PREFIX}-gtk-update-icon-cache"
+         "${MINGW_PACKAGE_PREFIX}-python")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-gsettings-desktop-schemas"
+             "${MINGW_PACKAGE_PREFIX}-gobject-introspection")
+source=(https://download.gnome.org/sources/${_realname}/${pkgver%.*}/${_realname}-${pkgver}.tar.xz
+        001-win.patch)
+sha256sums=('44968e09059272be038c00aaf9796b442a6cd68163a5cb08c98824492a9b5498'
+            '7b5a599b0fb719156747627944cae4b1107ffb8f11bcaddf0c8100d89c93548d')
+
+prepare() {
+  cd "${srcdir}"/${_realname}-${pkgver}
+
+  patch -p1 -i "${srcdir}"/001-win.patch
+
+  autoreconf -isf
+}
+
+build() {
+  mkdir -p build-${MSYSTEM} && cd build-${MSYSTEM}
+
+  ../${_realname}-${pkgver}/configure \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --prefix=${MINGW_PREFIX} \
+    --libexecdir=${MINGW_PREFIX}/lib
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+}

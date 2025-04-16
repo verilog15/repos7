@@ -1,0 +1,70 @@
+# Maintainer: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=cppwinrt
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=2.0.240405.15
+_windows_rs_ver=0.59.0
+pkgrel=1
+pkgdesc="C++ language projection for Windows Runtime (WinRT) APIs (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://aka.ms/cppwinrt'
+license=('spdx:MIT')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja")
+source=("https://github.com/microsoft/cppwinrt/archive/${pkgver}/${_realname}-${pkgver}.tar.gz"
+        "https://github.com/microsoft/windows-rs/archive/${_windows_rs_ver}/windows-rs-${_windows_rs_ver}.tar.gz")
+sha256sums=('1da61942ee0a4500440592b7daf7bf5151b2c8aa92e57f85259cfd13c57be0d0'
+            'cc1b581ea290e4c69501793952332777cb25f5c6eae438d450446011d444c2f4')
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  declare -a extra_config
+  if check_option "debug" "n"; then
+    extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+    "${MINGW_PREFIX}"/bin/cmake.exe -Wno-dev \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX="${MINGW_PREFIX}" \
+      "${extra_config[@]}" \
+      -DCPPWINRT_BUILD_VERSION="${pkgver}" \
+      -DBUILD_TESTING=OFF \
+      ../${_realname}-${pkgver}
+
+  "${MINGW_PREFIX}"/bin/cmake.exe --build .
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  "${MINGW_PREFIX}"/bin/cmake.exe -DBUILD_TESTING=ON ../${_realname}-${pkgver}
+  "${MINGW_PREFIX}"/bin/cmake.exe --build .
+
+  "${MINGW_PREFIX}"/bin/ctest.exe . || warning "Tests failed"
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  install -Dm755 cppwinrt.exe "${pkgdir}${MINGW_PREFIX}/bin/cppwinrt.exe"
+
+  echo "SPDX-License-Identifier: MIT OR Apache-2.0
+SPDX-FileCopyrightText: Copyright (c) Microsoft Corporation
+
+Generated using .winmd files from https://github.com/microsoft/windows-rs
+" > license.txt
+
+  ./cppwinrt.exe -license license.txt \
+    -input "${srcdir}/windows-rs-${_windows_rs_ver}/crates/libs/bindgen/default" \
+    -output "${pkgdir}${MINGW_PREFIX}/include"
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

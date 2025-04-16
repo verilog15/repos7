@@ -1,0 +1,55 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=libnfs
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=5.0.3
+pkgrel=1
+pkgdesc="Client library for accessing NFS shares over a network (mingw-w64)"
+arch=(any)
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://github.com/sahlberg/libnfs/"
+license=('BSD' 'GPL3' 'LGPL2.1')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc" "${MINGW_PACKAGE_PREFIX}-autotools")
+source=("https://github.com/sahlberg/libnfs/archive/${_realname}-${pkgver}.tar.gz"
+        2.0.0-win32.patch
+        2.0.0-no-unefined.patch)
+sha256sums=('d945cb4f4c8f82ee1f3640893a168810f794a28e1010bb007ec5add345e9df3e'
+            '42431022a0dac3384501c0e1f84490df93e6d4e7870dc87c00371b93222f6992'
+            '9002c3e2f804cf0704c0aacfdf741c51b699387ea2e7e9d857d0a0c72ca05e3c')
+
+prepare() {
+  cd ${_realname}-${_realname}-${pkgver}
+
+  patch -p1 -i "${srcdir}"/2.0.0-win32.patch
+  patch -p1 -i "${srcdir}"/2.0.0-no-unefined.patch
+
+  autoreconf -fiv
+}
+
+build() {
+  mkdir "build-${MSYSTEM}" && cd "build-${MSYSTEM}"
+
+  ../${_realname}-${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --enable-shared \
+    --enable-static \
+    --enable-utils
+
+  make
+}
+
+package() {
+  cd build-${MSYSTEM}
+
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm644 "${srcdir}"/${_realname}-${_realname}-${pkgver}/COPYING "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/COPYING
+  install -Dm644 "${srcdir}"/${_realname}-${_realname}-${pkgver}/LICENCE-BSD.txt "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENCE-BSD.txt
+  install -Dm644 "${srcdir}"/${_realname}-${_realname}-${pkgver}/LICENCE-GPL-3.txt "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENCE-GPL-3.txt
+  install -Dm644 "${srcdir}"/${_realname}-${_realname}-${pkgver}/LICENCE-LGPL-2.1.txt "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENCE-LGPL-2.1.txt
+}

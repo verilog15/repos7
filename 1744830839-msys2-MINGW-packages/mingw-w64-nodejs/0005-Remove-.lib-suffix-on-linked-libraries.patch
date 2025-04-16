@@ -1,0 +1,129 @@
+From 5f390ae5e8857ad8c4d0a8b00818eadd8d8f4daa Mon Sep 17 00:00:00 2001
+From: Alethea Rose <alethea@alethearose.com>
+Date: Tue, 14 Feb 2017 23:11:03 -0500
+Subject: [PATCH 05/23] Remove .lib suffix on linked libraries
+
+---
+ node.gyp                 | 32 ++++++++++++++++----------------
+ tools/v8_gypfiles/v8.gyp | 28 +++++++++++++---------------
+ 2 files changed, 29 insertions(+), 31 deletions(-)
+
+diff --git a/node.gyp b/node.gyp
+index 2a8e6a66..73bd4249 100644
+--- a/node.gyp
++++ b/node.gyp
+@@ -658,9 +658,9 @@
+         }],
+         ['OS=="win"', {
+           'libraries': [
+-            'Dbghelp.lib',
+-            'winmm.lib',
+-            'Ws2_32.lib',
++            '-ldbghelp',
++            '-lwinmm',
++            '-lws2_32',
+           ],
+         }],
+         ['node_with_ltcg=="true"', {
+@@ -935,10 +935,10 @@
+             }],
+           ],
+           'libraries': [
+-            'Dbghelp',
+-            'Psapi',
+-            'Winmm',
+-            'Ws2_32',
++            '-ldbghelp',
++            '-lpsapi',
++            '-lwinmm',
++            '-lws2_32',
+           ],
+         }],
+         [ 'node_use_openssl=="true"', {
+@@ -1223,9 +1223,9 @@
+         }],
+         ['OS=="win"', {
+           'libraries': [
+-            'Dbghelp.lib',
+-            'winmm.lib',
+-            'Ws2_32.lib',
++            '-ldbghelp',
++            '-lwinmm',
++            '-lws2_32',
+           ],
+         }],
+         # Avoid excessive LTO
+@@ -1279,9 +1279,9 @@
+         }],
+         ['OS=="win"', {
+           'libraries': [
+-            'Dbghelp.lib',
+-            'winmm.lib',
+-            'Ws2_32.lib',
++            '-ldbghelp',
++            '-lwinmm',
++            '-lws2_32',
+           ],
+         }],
+         # Avoid excessive LTO
+@@ -1400,9 +1400,9 @@
+         }],
+         ['OS=="win"', {
+           'libraries': [
+-            'Dbghelp.lib',
+-            'winmm.lib',
+-            'Ws2_32.lib',
++            '-ldbghelp',
++            '-lwinmm',
++            '-lws2_32',
+           ],
+         }],
+         # Avoid excessive LTO
+diff --git a/tools/v8_gypfiles/v8.gyp b/tools/v8_gypfiles/v8.gyp
+index 9d385515..f8b51b04 100644
+--- a/tools/v8_gypfiles/v8.gyp
++++ b/tools/v8_gypfiles/v8.gyp
+@@ -1440,14 +1440,12 @@
+           ],
+           'defines': ['_CRT_RAND_S'], # for rand_s()
+           'direct_dependent_settings': {
+-            'msvs_settings': {
+-              'VCLinkerTool': {
+-                'AdditionalDependencies': [
+-                  'dbghelp.lib',
+-                  'winmm.lib',
+-                  'ws2_32.lib'
+-                ]
+-              }
++            'link_settings': {
++              'libraries': [
++                '-ldbghelp',
++                '-lwinmm',
++                '-lws2_32'
++              ],
+             },
+             'conditions': [
+               ['v8_enable_etw_stack_walking==1', {
+@@ -1750,13 +1748,13 @@
+           'RuntimeTypeInfo': 'true',
+           'ExceptionHandling': 1,
+         },
+-        'VCLinkerTool': {
+-          'AdditionalDependencies': [
+-            'dbghelp.lib',
+-            'winmm.lib',
+-            'ws2_32.lib'
+-          ]
+-        }
++      },
++      'link_settings': {
++        'libraries': [
++          '-ldbghelp',
++          '-lwinmm',
++          '-lws2_32'
++        ],
+       },
+       'sources': [
+         "<(V8_ROOT)/src/torque/torque.cc",
+-- 
+2.17.0.windows.1

@@ -1,0 +1,22 @@
+# Contributor: Feng Shu <tumashu@163.com>
+
+_realname=rime-wubi
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.0.0.20200908
+_commit=f1876f08f1d4a9696395be0070c0e8e4353c44cb
+pkgrel=1
+pkgdesc="Wubi input for rime (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+license=('LGPL')
+# dependency for reverse lookup
+depends=("${MINGW_PACKAGE_PREFIX}-rime-pinyin-simp")
+url="https://github.com/rime/rime-wubi"
+source=("https://github.com/rime/rime-wubi/archive/${_commit}/rime-wubi-${_commit}.tar.gz")
+sha512sums=('bc7dac4c11f062640c61556078d0847b5033a105a5f8b15a26a487e16cb323e9b4cf38d34c33f453b85537ee8314adf1a20e136422c12598b7af63d2c9533d7e')
+
+package() {
+  cd "rime-wubi-${_commit}"
+  install -Dm644 *.yaml -t "${pkgdir}${MINGW_PREFIX}/share/rime-data/"
+}

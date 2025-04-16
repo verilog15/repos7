@@ -1,0 +1,49 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=djvulibre
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=3.5.28
+pkgrel=3
+pkgdesc="Suite to create, manipulate and view DjVu (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://djvu.sourceforge.io/"
+msys2_references=(
+  "cpe: cpe:/a:djvulibre_project:djvulibre"
+)
+license=("GPL")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf"
+             "${MINGW_PACKAGE_PREFIX}-autotools")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-libjpeg"
+         "${MINGW_PACKAGE_PREFIX}-libiconv"
+         "${MINGW_PACKAGE_PREFIX}-libtiff"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+source=("https://downloads.sourceforge.net/djvu/${_realname}-${pkgver}.tar.gz")
+sha256sums=('fcd009ea7654fde5a83600eb80757bd3a76998e47d13c66b54c8db849f8f2edc')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  # autoreconf to get updated libtool files for clang
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --enable-static \
+    --enable-shared
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make DESTDIR="${pkgdir}" install
+}

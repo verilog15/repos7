@@ -1,0 +1,61 @@
+# Maintainer: Miloš Komarčević <miloskomarcevic@aim.com>
+
+_realname=libaec
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.1.3
+pkgrel=3
+pkgdesc="Adaptive Entropy Coding library (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://gitlab.dkrz.de/k202009/libaec"
+license=('spdx:BSD-2-Clause')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja")
+provides=("${MINGW_PACKAGE_PREFIX}-szip")
+replaces=("${MINGW_PACKAGE_PREFIX}-szip")
+source=("https://gitlab.dkrz.de/k202009/libaec/-/archive/v${pkgver}/libaec-v${pkgver}.tar.bz2"
+        https://patch-diff.githubusercontent.com/raw/MathisRosenhauer/libaec/pull/34.patch
+        "0005-cmake-fix-cmake-install.patch")
+sha256sums=('46216f9d2f2d3ffea4c61c9198fe0236f7f316d702f49065c811447186d18222'
+            '6f21d732c139592c18d867bbed43a27150ae513b425fa70f6c9eb7f054561dd3'
+            '3076466b341dc7d84df965c68accbce45833c4bc4671b0e6c98645a44ae13f06')
+
+prepare() {
+  cd "${srcdir}/${_realname}-v${pkgver}"
+  # https://github.com/MathisRosenhauer/libaec/pull/34
+  patch -p1 -i "${srcdir}"/34.patch
+  patch -p1 -i "${srcdir}"/0005-cmake-fix-cmake-install.patch
+}
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  declare -a extra_config
+  if check_option "debug" "n"; then
+    extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+    ${MINGW_PREFIX}/bin/cmake \
+      -GNinja \
+      -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+      "${extra_config[@]}" \
+      -DCMAKE_DLL_NAME_WITH_SOVERSION=ON \
+      -DBUILD_TESTING=OFF \
+      ../${_realname}-v${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake --build .
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake --install .
+
+  install -Dm644 "${srcdir}"/${_realname}-v${pkgver}/LICENSE.txt \
+    "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+}

@@ -1,0 +1,33 @@
+--- a/source/blender/blenlib/intern/math_base.c
++++ b/source/blender/blenlib/intern/math_base.c
+@@ -34,7 +34,7 @@
+     pow2 = 1.0;
+     y = (x * pow1) * pow2;
+     /* if y overflows, then rounded value is exactly x */
+-    if (!isfinite(y)) {
++    if (!isfinite((float)y)) {
+       return x;
+     }
+   }
+--- a/source/blender/blenlib/intern/math_geom.c
++++ b/source/blender/blenlib/intern/math_geom.c
+@@ -4039,7 +4039,7 @@
+     const float dot = dot_v3v3(d_curr->dir, d_next->dir);
+     const float len = d_curr->len * d_next->len;
+     const float result = (len - dot) / area;
+-    if (isfinite(result)) {
++    if (isfinite((float)result)) {
+       return result;
+     }
+   }
+--- a/source/blender/blenlib/intern/math_solvers.c
++++ b/source/blender/blenlib/intern/math_solvers.c
+@@ -80,7 +80,7 @@
+ 
+   MEM_freeN(c1);
+ 
+-  return isfinite(x_prev);
++  return isfinite((float)x_prev);
+ }
+ 
+ bool BLI_tridiagonal_solve_cyclic(

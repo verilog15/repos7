@@ -1,0 +1,42 @@
+# Maintainer: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=jaraco.itertools
+pkgbase=mingw-w64-python-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
+pkgver=6.4.2
+pkgrel=1
+pkgdesc='Jaraco Itertools (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'purl: pkg:pypi/jaraco-itertools'
+)
+url="https://github.com/jaraco/jaraco.itertools"
+license=('spdx:MIT')
+depends=(
+  "${MINGW_PACKAGE_PREFIX}-python-more-itertools"
+  "${MINGW_PACKAGE_PREFIX}-python-inflect"
+)
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-python-build"
+  "${MINGW_PACKAGE_PREFIX}-python-installer"
+  "${MINGW_PACKAGE_PREFIX}-python-setuptools"
+  "${MINGW_PACKAGE_PREFIX}-python-setuptools-scm"
+)
+source=("https://pypi.org/packages/source/${_realname::1}/${_realname/./_}/${_realname/./_}-${pkgver}.tar.gz")
+sha256sums=('36c98e8bd7906b27021062e2fe141a0b7281dc6e7a59cf605fb70771a4bb4abd')
+
+build() {
+  export SETUPTOOLS_SCM_PRETEND_VERSION="${pkgver}"
+  cp -r "${_realname/./_}-${pkgver}" "python-build-${MSYSTEM}" && cd "python-build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+package() {
+  cd "${srcdir}/python-build-${MSYSTEM}"
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    ${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
+    --destdir="${pkgdir}" dist/*.whl
+
+  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE"
+}

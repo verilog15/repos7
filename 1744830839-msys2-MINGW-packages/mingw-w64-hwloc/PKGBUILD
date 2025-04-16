@@ -1,0 +1,66 @@
+# Maintainer: Levente Polyak <anthraxx@archlinux.org>
+# Contributor: Stéphane Gaudreault <stephane@archlinux.org>
+# Contributor: Sylvain HENRY <hsyl20@yahoo.fr>
+# Contributor: Hervé YVIQUEL <elldekaa@gmail.com>
+
+_realname=hwloc
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=2.12.0
+pkgrel=1
+pkgdesc='Portable Hardware Locality is a portable abstraction of hierarchical architectures (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://www.open-mpi.org/projects/hwloc/'
+msys2_references=(
+  "cpe: cpe:/a:open-mpi:hwloc"
+)
+license=('spdx:BSD-3-Clause')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-libltdl")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-cairo")
+optdepends=("${MINGW_PACKAGE_PREFIX}-cairo")
+options=('!docs')
+source=(https://www.open-mpi.org/software/hwloc/v${pkgver%.*}/downloads/${_realname}-${pkgver}.tar.bz2)
+sha256sums=('06a0a2bdc0a5714e839164683846a0e936a896213758e9d37e49e232b89c58d4')
+
+prepare() {
+  cd ${_realname}-${pkgver}
+
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --sbindir=${MINGW_PREFIX}/bin \
+    --sysconfdir=${MINGW_PREFIX}/etc \
+    --enable-shared \
+    --enable-static \
+    --enable-plugins
+
+  make
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make check || true
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  make install DESTDIR="${pkgdir}"
+
+  install -Dm644 "${srcdir}"/${_realname}-${pkgver}/COPYING \
+    "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+
+  # Remove unwanted text files
+  rm "${pkgdir}"${MINGW_PREFIX}/*.txt
+}
+
+# vim: ts=2 sw=2 et:

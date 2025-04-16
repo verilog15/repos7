@@ -1,0 +1,56 @@
+--- a/intern/ghost/intern/GHOST_SystemPathsWin32.cc
++++ b/intern/ghost/intern/GHOST_SystemPathsWin32.cc
+@@ -22,6 +22,44 @@
+ {
+ }
+ 
++#if defined(__MINGW32__)
++
++const char *GHOST_SystemPathsWin32::getSystemDir(int, const char *versionstr) const
++{
++	static char knownpath[MAX_PATH * 3 + 128] = {0};
++
++	char temppath[MAX_PATH + 1];
++	char temppath2[MAX_PATH + 1];
++	const char *binary_dir = getBinaryDir();
++	strcpy(temppath2, reinterpret_cast<const char*>(binary_dir));
++	char* lastslash = strrchr(temppath2, '\\');
++	if (lastslash != NULL) {
++		*lastslash = '\0';
++	}
++	snprintf(temppath, sizeof(temppath), "%s\\..\\share\\blender\\%s", temppath2, versionstr);
++	temppath[MAX_PATH] = '\0';
++	GetFullPathNameA(temppath, sizeof(knownpath), knownpath, NULL);
++	return (char*)knownpath;
++}
++
++const char *GHOST_SystemPathsWin32::getUserDir(int, const char *versionstr) const
++{
++	static char knownpath[MAX_PATH * 3 + 128] = {0};
++
++	char temppath[MAX_PATH + 1];
++	char temppath2[MAX_PATH + 1];
++	const char *binary_dir = getBinaryDir();
++	strcpy(temppath2, reinterpret_cast<const char*>(binary_dir));
++	char* lastslash = strrchr(temppath2, '\\');
++	if (lastslash != NULL) {
++		*lastslash = '\0';
++	}
++	snprintf(temppath, sizeof(temppath), "%s\\..\\..\\home\\%s\\.blender\\%s", temppath2, getenv("USERNAME") ?: "unknown", versionstr);
++	temppath[MAX_PATH] = '\0';
++	GetFullPathNameA(temppath, sizeof(knownpath), knownpath, NULL);
++	return (char*)knownpath;
++}
++#else
+ const char *GHOST_SystemPathsWin32::getSystemDir(int, const char *versionstr) const
+ {
+   /* 1 utf-16 might translate into 3 utf-8. 2 utf-16 translates into 4 utf-8. */
+@@ -61,6 +99,8 @@
+   return NULL;
+ }
+ 
++#endif
++
+ const char *GHOST_SystemPathsWin32::getUserSpecialDir(GHOST_TUserSpecialDirTypes type) const
+ {
+   GUID folderid;

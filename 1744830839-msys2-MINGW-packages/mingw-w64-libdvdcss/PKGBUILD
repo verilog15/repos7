@@ -1,0 +1,40 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=libdvdcss
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.4.3
+pkgrel=1
+pkgdesc="Portable abstraction library for DVD decryption (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://www.videolan.org/developers/libdvdcss.html"
+license=("GPL")
+makedepends=("${MINGW_PACKAGE_PREFIX}-autotools" "${MINGW_PACKAGE_PREFIX}-cc")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+source=("https://download.videolan.org/pub/${_realname}/${pkgver}/${_realname}-${pkgver}.tar.bz2"{,.asc})
+sha256sums=('233cc92f5dc01c5d3a96f5b3582be7d5cee5a35a52d3a08158745d3d86070079'
+            'SKIP')
+validpgpkeys=('65F7C6B4206BD057A7EB73787180713BE58D1ADC') # VideoLAN Release Signing Key
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --disable-doc
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make DESTDIR="${pkgdir}" install
+}

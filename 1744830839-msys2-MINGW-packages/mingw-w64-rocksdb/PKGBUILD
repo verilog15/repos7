@@ -1,0 +1,85 @@
+# Maintainer: Philippe Renon <philippe.renon@yahoo.fr>
+
+_realname=rocksdb
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=9.10.0
+pkgrel=1
+pkgdesc='Embedded key-value store for fast storage (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'archlinux: rocksdb'
+)
+msys2_repository_url='https://github.com/facebook/rocksdb/'
+msys2_documentation_url='https://rocksdb.org/docs/'
+url='https://rocksdb.org/'
+license=('spdx:Apache-2.0 OR GPL-2.0-or-later')
+depends=("${MINGW_PACKAGE_PREFIX}-bzip2"
+         "${MINGW_PACKAGE_PREFIX}-lz4"
+         "${MINGW_PACKAGE_PREFIX}-snappy"
+         "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-zstd")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja")
+source=("https://github.com/facebook/${_realname}/archive/v${pkgver}/${_realname}-${pkgver}.tar.gz"
+        "0001-disable-static-assert-ClockHandle-size.patch"
+        "0002-include-missing-header.patch"
+        "0004-fix-generating-and-install-import-lib.patch")
+sha256sums=('fdccab16133c9d927a183c2648bcea8d956fb41eb1df2aacaa73eb0b95e43724'
+            'd00c85cfb139bb6a9b6cc3c704fb7b02efa563b6ba88c1177d5ea5dddf21f1ee'
+            'a5a7b933133587c8bb6da032af2f4018cb21d055daecd778e2aabf9605267ed7'
+            '668f58aaabb03973f5606cc79c7235ba61ce4868a069f0df559381a48d4f4913')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -p1 -i "${srcdir}/0001-disable-static-assert-ClockHandle-size.patch"
+  patch -p1 -i "${srcdir}/0002-include-missing-header.patch"
+  patch -p1 -i "${srcdir}/0004-fix-generating-and-install-import-lib.patch"
+}
+
+build() {
+  mkdir "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  declare -a extra_config
+  if check_option "debug" "n"; then
+    extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G"Ninja" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    "${extra_config[@]}" \
+    -DWITH_ZLIB=ON \
+    -DWITH_BZ2=ON \
+    -DWITH_LZ4=ON \
+    -DWITH_ZSTD=ON \
+    -DWITH_TBB=OFF \
+    -DWITH_SNAPPY=ON \
+    -DUSE_RTTI=ON \
+    -DPORTABLE=1 \
+    -DROCKSDB_INSTALL_ON_WINDOWS=ON \
+    -DFAIL_ON_WARNINGS=OFF \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  local PREFIX_WIN=$(cygpath -wm ${MINGW_PREFIX})
+  for _f in "${pkgdir}${MINGW_PREFIX}"/lib/cmake/${_realname}/*.cmake; do
+    sed -e "s|${PREFIX_WIN}|\$\{_IMPORT_PREFIX\}|g" -i ${_f}
+    sed -e "s|${MINGW_PREFIX}|\$\{_IMPORT_PREFIX\}|g" -i ${_f}
+  done
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}"/LICENSE.Apache "${pkgdir}${MINGW_PREFIX}"/share/licenses/${_realname}/LICENSE
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}"/LICENSE.leveldb "${pkgdir}${MINGW_PREFIX}"/share/licenses/${_realname}/LICENSE.leveldb
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}"/COPYING "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+}

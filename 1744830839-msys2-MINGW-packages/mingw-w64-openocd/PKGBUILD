@@ -1,0 +1,54 @@
+# Maintainer: Andrew Leech <andrew@alelec.net>
+# Contributor: Ray Donnelly <mingw.android@gmail.com>
+# Contributor: Rocco Marco Guglielmi <guglielmir@playembedded.org>
+
+_realname=openocd
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.12.0
+pkgrel=3
+pkgdesc="OpenOCD - Open On-Chip Debugger (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64')
+url="https://openocd.org/"
+license=("spdx:GPL-2.0-or-later")
+depends=("${MINGW_PACKAGE_PREFIX}-hidapi"
+         "${MINGW_PACKAGE_PREFIX}-libusb"
+         "${MINGW_PACKAGE_PREFIX}-libftdi"
+         "${MINGW_PACKAGE_PREFIX}-libjaylink"
+         "${MINGW_PACKAGE_PREFIX}-capstone")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-libtool"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf")
+source=("https://downloads.sourceforge.net/sourceforge/${_realname}/${_realname}-${pkgver}.tar.bz2")
+sha256sums=("af254788be98861f2bd9103fe6e60a774ec96a8c374744eef9197f6043075afa")
+
+build() {
+  cd ${_realname}-${pkgver}
+
+  ./configure \
+      --prefix=${MINGW_PREFIX} \
+      --build=${MINGW_CHOST} \
+      --disable-dependency-tracking \
+      --disable-werror \
+      --disable-internal-libjaylink \
+      --enable-dummy \
+      --enable-jtag_vpi \
+      --enable-remote-bitbang \
+      --enable-amtjtagaccel \
+      --enable-gw16012 \
+      --enable-parport \
+      --enable-parport-giveio
+
+  make
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/COPYING
+
+  # bsdtar can't convert non-ascii filenames to UTF-8 when run in
+  # non-UTF-8 locale. It proceeds to pack them anyway embedding raw
+  # binary filenames in the traditional tar headers.
+}

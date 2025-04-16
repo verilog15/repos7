@@ -1,0 +1,60 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=cryptography
+pkgbase=mingw-w64-python-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
+pkgver=44.0.2
+pkgrel=1
+pkgdesc="A package designed to expose cryptographic recipes and primitives to Python developers (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://cryptography.io/'
+msys2_repository_url='https://github.com/pyca/cryptography'
+msys2_references=(
+  'purl: pkg:pypi/cryptography'
+  "cpe: cpe:/a:cryptography:python-cryptography"
+  "cpe: cpe:/a:cryptography_project:cryptography"
+  "cpe: cpe:/a:python-cryptography_project:python-cryptography"
+)
+license=('spdx:BSD-3-Clause OR Apache-2.0')
+depends=("${MINGW_PACKAGE_PREFIX}-python"
+         "${MINGW_PACKAGE_PREFIX}-python-cffi"
+         "${MINGW_PACKAGE_PREFIX}-openssl")
+makedepends=("${MINGW_PACKAGE_PREFIX}-python-build"
+             "${MINGW_PACKAGE_PREFIX}-python-installer"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools"
+             "${MINGW_PACKAGE_PREFIX}-python-maturin"
+             "${MINGW_PACKAGE_PREFIX}-rust"
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf")
+checkdepends=(
+              #"${MINGW_PACKAGE_PREFIX}-python-iso8601"
+              "${MINGW_PACKAGE_PREFIX}-python-pretend"
+              #"${MINGW_PACKAGE_PREFIX}-python-cryptography-vectors"
+              "${MINGW_PACKAGE_PREFIX}-python-hypothesis"
+              "${MINGW_PACKAGE_PREFIX}-python-pytz")
+source=("https://pypi.org/packages/source/${_realname::1}/${_realname}/${_realname}-${pkgver}.tar.gz")
+sha256sums=('c63454aa261a0cf0c5b4718349629793e9e634993538db841165b3df74f37ec0')
+
+build() {
+  cp -r "${_realname}-${pkgver}" "python-build-${MSYSTEM}" && cd "python-build-${MSYSTEM}"
+
+  export _PYTHON_HOST_PLATFORM=$(python -c "import sysconfig, sys; sys.stdout.write(sysconfig.get_platform())")
+  ${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  # ${MINGW_PREFIX}/bin/python -m pytest
+}
+
+package() {
+  cd "${srcdir}/python-build-${MSYSTEM}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    ${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
+    --destdir="${pkgdir}" dist/*.whl
+
+  install -Dm644 LICENSE "${pkgdir}"${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE
+}

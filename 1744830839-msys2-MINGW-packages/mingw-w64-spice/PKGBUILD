@@ -1,0 +1,98 @@
+# Maintainer: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=spice
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.15.2
+pkgrel=1
+pkgdesc="SPICE: Simple Protocol for Independent Computing Environments (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://www.spice-space.org/"
+msys2_references=(
+  "cpe: cpe:/a:spice_project:spice"
+)
+license=('spdx:LGPL-2.1-or-later')
+depends=(
+             "${MINGW_PACKAGE_PREFIX}-glib2"
+             "${MINGW_PACKAGE_PREFIX}-gstreamer"
+             "${MINGW_PACKAGE_PREFIX}-gst-plugins-base"
+             "${MINGW_PACKAGE_PREFIX}-gst-plugins-good"
+             "${MINGW_PACKAGE_PREFIX}-libcacard"
+             "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+             "${MINGW_PACKAGE_PREFIX}-libwinpthread-git"
+             "${MINGW_PACKAGE_PREFIX}-lz4"
+             "${MINGW_PACKAGE_PREFIX}-openssl"
+             "${MINGW_PACKAGE_PREFIX}-opus"
+             "${MINGW_PACKAGE_PREFIX}-pixman"
+             "${MINGW_PACKAGE_PREFIX}-spice-protocol"
+             "${MINGW_PACKAGE_PREFIX}-zlib"
+)
+optdepends=(
+             "${MINGW_PACKAGE_PREFIX}-gst-plugins-ugly: for the x264enc GStreamer element"
+             "${MINGW_PACKAGE_PREFIX}-gst-libav:        for the avenc_mjpeg GStreamer element"
+)
+makedepends=(
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "autoconf-archive"
+             "${MINGW_PACKAGE_PREFIX}-asciidoc"
+)
+source=(https://www.spice-space.org/download/releases/spice-server/${_realname}-${pkgver}.tar.bz2{,.sig}
+        0001-fix-compiling-with-libcacard.patch::https://gitlab.freedesktop.org/spice/spice/-/commit/3dfd5243c7d8146ff25de4cd76657641118821be.patch)
+validpgpkeys=('206D3B352F566F3B0E6572E997D9123DE37A484F')
+sha256sums=('6d9eb6117f03917471c4bc10004abecff48a79fb85eb85a1c45f023377015b81'
+            'SKIP'
+            '9ebd4f572dc2316e47b63b1c8802c69297922ce9ca14603959208afa74065be3')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -p1 -i "${srcdir}"/0001-fix-compiling-with-libcacard.patch
+
+  # Fix test to recognize CRLF lineending
+  find . -name test-logging.c -exec \
+    sed -i "s/\\\\n/\\\\r\\\\n/g" {} \;
+  # autoreconf to get updated libtool files with clang support
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  # --disable-silent-rules: verbose build
+  # --enable-extra-checks:  adds (failing) test test-video-encoders
+  # --enable-manual=no:     because manual is already provided in tarball
+  # --with-sasl=no:         because compilation fails
+
+  CFLAGS="-g -O2" \
+  CXXFLAGS="-g -O2 -fno-exceptions -fno-check-new" \
+  LDFLAGS="-g -lpthread" \
+  "${srcdir}"/${_realname}-${pkgver}/configure \
+    --prefix="${MINGW_PREFIX}" \
+    --enable-gstreamer=1.0 \
+    --enable-manual=no \
+    --with-sasl=no
+
+  make
+}
+
+check() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  # CI doesn't check, locally do not fail, but show results
+  make check || true
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  make install DESTDIR="${pkgdir}"
+
+  cd "${srcdir}"/${_realname}-${pkgver}
+  local DOCDIR="${pkgdir}"/${MINGW_PREFIX}/share/doc/${_realname}
+  local LICENSEDIR="${pkgdir}"/${MINGW_PREFIX}/share/licenses/${_realname}
+  mkdir -pv "$DOCDIR" "$LICENSEDIR"
+  cp -pv COPYING "$LICENSEDIR"/
+  cp -av README AUTHORS CHANGELOG.md docs/images docs/*.html \
+    docs/manual/images docs/manual/*.html \
+    docs/manual/manual.chunked \
+    "$DOCDIR"/
+}

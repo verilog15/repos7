@@ -1,0 +1,50 @@
+_realname=doctest
+pkgbase=mingw-w64-${_realname}
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
+pkgver=2.4.11
+pkgrel=1
+pkgdesc='A lightweight C++ header-only unit testing framework (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://github.com/doctest/doctest'
+license=('MIT')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja")
+source=("${url}/archive/v${pkgver}.tar.gz")
+sha256sums=('632ed2c05a7f53fa961381497bf8069093f0d6628c5f26286161fbd32a560186')
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  declare -a extra_config
+  if check_option "debug" "n"; then
+    extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake \
+    -G"Ninja" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DDOCTEST_WITH_TESTS=off \
+    "${extra_config[@]}" \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake --build .
+}
+
+# check() {
+  # cd "${srcdir}/${pkgname}-${pkgver}/build"
+  # make
+  # ctest -C Release --output-on-failure
+# }
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake --install .
+  install -Dm 0644 "${srcdir}/${_realname}-${pkgver}/LICENSE.txt" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

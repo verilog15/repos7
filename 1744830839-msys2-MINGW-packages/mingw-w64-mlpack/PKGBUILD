@@ -1,0 +1,68 @@
+# Maintainer: Sergey Popov <popov.sa@gmail.com>
+
+_realname=mlpack
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=4.2.1
+pkgrel=1
+pkgdesc='An intuitive, fast, scalable C++ machine learning library (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://mlpack.org/'
+license=('spdx:BSD-3-Clause')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-omp"
+         "${MINGW_PACKAGE_PREFIX}-armadillo"
+         "${MINGW_PACKAGE_PREFIX}-cereal"
+         "${MINGW_PACKAGE_PREFIX}-ensmallen"
+         "${MINGW_PACKAGE_PREFIX}-stb")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-doxygen")
+source=("https://www.mlpack.org/files/${_realname}-${pkgver}.tar.gz"
+        "0001-mingw-w64-cmake.patch"
+        "0002-mingw-w64-pkgconfig.patch"
+        "0003-do-not-search-for-git.patch")
+sha256sums=('2d2b8d61dc2e3179e0b6fefd5c217c57aa168c4d0b9c6868ddb94f6395a80dd5'
+            '911a45e943ff68c1cbb38416cc133fced06fb0a0ef2b916d467b5715daebd4f7'
+            '01a23bd54ce663c9d500015a23c96251ffac829404be5292b69e33f4509eb662'
+            'e003e45031ee04e08a9e963ee85d89b667344b1919505f78c033c16410be3bd2')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/0001-mingw-w64-cmake.patch"
+  patch -Np1 -i "${srcdir}/0002-mingw-w64-pkgconfig.patch"
+  patch -Np1 -i "${srcdir}/0003-do-not-search-for-git.patch"
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  if check_option "debug" "y"; then
+    _build_type="Debug"
+  else
+    _build_type="Release"
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe -Wno-dev \
+    -G"Ninja" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DCMAKE_BUILD_TYPE=${_build_type} \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_TESTS=OFF \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake --build .
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake --install .
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYRIGHT.txt" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYRIGHT.txt"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/LICENSE.txt" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE.txt"
+}

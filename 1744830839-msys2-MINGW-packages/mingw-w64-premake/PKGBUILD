@@ -1,0 +1,50 @@
+# Maintainer: Martell Malone <martellmalone@gmail.com>
+# Contributor: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=premake
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=5.0beta4
+_realver=5.0.0-beta4
+pkgrel=1
+pkgdesc="A simple build configuration and project generation tool (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64')
+url="https://premake.github.io/"
+msys2_repository_url="https://github.com/premake/premake-core"
+license=('spdx:BSD-3-Clause')
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc")
+source=("${_realname}-${pkgver}.tar.gz::https://github.com/premake/premake-core/archive/v${_realver}.tar.gz")
+sha256sums=('3174f5efac78592f61bb68ce157e1dae337f41480a4cd654aa3286451cc9ae7f')
+
+prepare() {
+  rm -rf "build-${MSYSTEM}"
+  cp -r "${_realname}-core-${_realver}" "build-${MSYSTEM}"
+  cd "build-${MSYSTEM}"
+}
+
+build() {
+  declare -a _config
+  if check_option "debug" "n"; then
+    _config="release"
+  else
+    _config="debug"
+  fi
+
+  declare -a _arch
+  if [ "$CARCH" = "i686" ]; then
+    _arch="x86"
+  elif [ "$CARCH" = "x86_64" ]; then
+    _arch="x64"
+  fi
+
+  echo "==> Building for ${_config} ${_arch}"
+  cd "build-${MSYSTEM}"
+  make -f Bootstrap.mak mingw CONFIG="${_config}" PLATFORM="${_arch}"
+}
+
+package() {
+  cd "build-${MSYSTEM}"
+  install -Dm755 bin/release/premake5.exe "${pkgdir}"${MINGW_PREFIX}/bin/premake5.exe
+  install -Dm644 LICENSE.txt "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE.txt"
+}

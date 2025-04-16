@@ -1,0 +1,58 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=uncrustify
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.80.1
+pkgrel=1
+pkgdesc="Source Code Beautifier for C, C++, C#, ObjectiveC, D, Java, Pawn and VALA (mingw-w64)"
+arch=(any)
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://uncrustify.sourceforge.io/"
+msys2_repository_url="https://github.com/uncrustify/uncrustify"
+msys2_references=(
+  'archlinux: uncrustify'
+)
+license=('spdx:GPL-2.0-or-later')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-python")
+source=("https://github.com/uncrustify/uncrustify/archive/${_realname}-${pkgver}.tar.gz")
+sha256sums=('0e2616ec2f78e12816388c513f7060072ff7942b42f1175eb28b24cb75aaec48')
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G "Ninja" \
+    "${_extra_config[@]}" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DPython3_EXECUTABLE=${MINGW_PREFIX}/bin/python \
+    "../${_realname}-${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build ./
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/ctest.exe ./ || true
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install ./
+
+  cd "${srcdir}/${_realname}-${_realname}-${pkgver}"
+  install -d -m755 "$pkgdir"/${MINGW_PREFIX}/share/uncrustify
+  install -m644 etc/*.cfg "$pkgdir"/${MINGW_PREFIX}/share/uncrustify
+}

@@ -1,0 +1,51 @@
+# Maintainer: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=bzip3
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=1.5.1
+pkgrel=1
+pkgdesc='A better and stronger spiritual successor to BZip2 (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://github.com/kspalaiologos/bzip3'
+license=('spdx:LGPL-3.0-or-later OR Apache-2.0')
+depends=("${MINGW_PACKAGE_PREFIX}-libwinpthread")
+makedepends=("${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+source=(https://github.com/kspalaiologos/bzip3/releases/download/${pkgver}/bzip3-${pkgver}.tar.xz)
+sha256sums=('53b844f9d9fb1d75faa4d3a9d9026017caaf50bb200b320d1685c6506b8f3b37')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  # For clang
+  autoreconf -fiv
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  CFLAGS+=" -D_GNU_SOURCE" \
+  ../"${_realname}-${pkgver}"/configure \
+    --prefix="${MINGW_PREFIX}" \
+    --build="${MINGW_CHOST}" \
+    --host="${MINGW_CHOST}" \
+    --target="${MINGW_CHOST}" \
+    --enable-static \
+    --enable-shared
+
+  make
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make install DESTDIR="${pkgdir}"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/LICENSE" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

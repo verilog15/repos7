@@ -1,0 +1,48 @@
+# Maintainer: Andrew Sun <adsun701@gmail.com>
+
+_realname=libdiscid
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.6.4
+pkgrel=1
+pkgdesc="A Library for creating MusicBrainz DiscIDs (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://musicbrainz.org/doc/libdiscid"
+license=('LGPL')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+makedepends=("${MINGW_PACKAGE_PREFIX}-autotools" "${MINGW_PACKAGE_PREFIX}-cc")
+source=("http://ftp.musicbrainz.org/pub/musicbrainz/libdiscid/${_realname}-${pkgver}.tar.gz"
+        "libdiscid-0.6.2-include-location.patch")
+sha256sums=('dd5e8f1c9aead442e23b749a9cc9336372e62e88ad7079a2b62895b0390cb282'
+            '227e1539e175da6323b1bfd92ac783cee4dbd5d940f97af77a1e67f25bfaa2e8')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/libdiscid-0.6.2-include-location.patch"
+  autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --enable-static \
+    --enable-shared
+
+  make
+}
+
+check() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  make check
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  make install DESTDIR="${pkgdir}"
+}

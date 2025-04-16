@@ -1,0 +1,126 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=ghostscript
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=10.05.0
+pkgrel=1
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_references=(
+  'archlinux: ghostscript'
+  "cpe: cpe:/a:artifex:ghostscript"
+  "cpe: cpe:/a:artifex:gpl_ghostscript"
+)
+msys2_documentation_url="https://ghostscript.readthedocs.io/"
+msys2_repository_url="https://git.ghostscript.com/?p=ghostpdl.git"
+url="https://www.ghostscript.com/"
+license=('AGPL' 'custom')
+pkgdesc="An interpreter for the PostScript language (mingw-w64)"
+depends=("${MINGW_PACKAGE_PREFIX}-dbus"
+         "${MINGW_PACKAGE_PREFIX}-expat"
+         "${MINGW_PACKAGE_PREFIX}-freetype"
+         "${MINGW_PACKAGE_PREFIX}-fontconfig"
+         "${MINGW_PACKAGE_PREFIX}-gdk-pixbuf2"
+         "${MINGW_PACKAGE_PREFIX}-jbig2dec"
+         "${MINGW_PACKAGE_PREFIX}-libiconv"
+         "${MINGW_PACKAGE_PREFIX}-libidn"
+         "${MINGW_PACKAGE_PREFIX}-libpaper"
+         "${MINGW_PACKAGE_PREFIX}-libpng"
+         "${MINGW_PACKAGE_PREFIX}-libjpeg"
+         "${MINGW_PACKAGE_PREFIX}-libtiff"
+         #"${MINGW_PACKAGE_PREFIX}-lcms2" # Use ghostscript's fork of LCMS2 as it patched to be threadsafe
+         "${MINGW_PACKAGE_PREFIX}-openjpeg2"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gtk3"
+             "${MINGW_PACKAGE_PREFIX}-gnutls"
+             "${MINGW_PACKAGE_PREFIX}-autotools"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+optdepends=("${MINGW_PACKAGE_PREFIX}-gtk3: needed for gsx")
+source=(https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${pkgver//./}/ghostscript-${pkgver}.tar.xz
+        001-mingw-build.patch
+        002-ghostscript-sys-zlib.patch
+        003-libspectre.patch
+        005-add-arm-arch-config.patch)
+sha256sums=('aac9c4fdf61805a76f6220012735c1ae832813788314bfc04055cc0c8959b9a3'
+            'dab44a95d8e9a4e1033b385f40449df109f9b9b7152ff3e5b5565f65c19466aa'
+            'ce9b0e8bb4e3bbe00ec32b65af1ca35f88a1d1f39c1016f2f5a2a86b7b1ca5a4'
+            'a1c284d5472e81073ef2f0a445a6238660b9203a7913c315834cac30f34ec146'
+            '4749c639175d3b35b16f33639d98f3a8ec3510171303c49b7efaa5015f649cf6')
+noextract=(ghostscript-${pkgver}.tar.xz)
+
+_apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -p1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  tar -xJf "${srcdir}"/${_realname}-${pkgver}.tar.xz -C "${srcdir}" || true
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+  _apply_patch_with_msg \
+    001-mingw-build.patch \
+    002-ghostscript-sys-zlib.patch \
+    003-libspectre.patch \
+    005-add-arm-arch-config.patch
+
+  sed -e "s|/usr|${MINGW_PREFIX}/${MINGW_CHOST}|g" -i base/all-arch.mak base/unix-aux.mak
+
+  # force it to use system-libs
+  rm -rf expat freetype jbig2dec jpeg libpng openjpeg tiff zlib tesseract leptonica
+
+  #cd base
+  libtoolize --force --copy --install
+  autoconf -f -i
+}
+
+build()
+{
+  cd "${srcdir}"/${_realname}-${pkgver}
+
+  CFLAGS+=" -Wno-error=int-conversion -Wno-error=incompatible-pointer-types"
+
+  ./configure \
+    --prefix=${MINGW_PREFIX} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --build=${MINGW_CHOST} \
+    --disable-contrib \
+    --enable-fontconfig \
+    --enable-dbus \
+    --enable-freetype \
+    --disable-cups \
+    --enable-openjpeg \
+    --enable-gtk \
+    --with-jbig2dec \
+    --with-libiconv=gnu \
+    --with-libidn \
+    --with-libpaper \
+    --with-system-libtiff \
+    --without-x \
+    --with-drivers=ALL
+
+  make DEVICE_DEVS_EXTRA="soobj/bbox.dev" so
+  #make gs.a
+}
+
+package() {
+  cd "${srcdir}"/${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" soinstall
+
+  #install -D -m644 "${srcdir}"/${_realname}-${pkgver}/gs.a "${pkgdir}"/${MINGW_PREFIX}/lib/libgs.a
+
+  mkdir -p "${pkgdir}${MINGW_PREFIX}"/share/${_realname}/${pkgver}/
+  cp -rf "${srcdir}"/${_realname}-${pkgver}/doc "${pkgdir}${MINGW_PREFIX}"/share/${_realname}/${pkgver}/
+
+  install -D -m644 "${srcdir}"/${_realname}-${pkgver}/LICENSE "${pkgdir}${MINGW_PREFIX}"/share/licenses/${_realname}/LICENSE
+
+  cp "${pkgdir}"${MINGW_PREFIX}/bin/{gsc,gswin32c}.exe
+  cp "${pkgdir}"${MINGW_PREFIX}/bin/{gsc,gs}.exe
+
+  # remove unwanted localized man-pages
+  rm -rf "${pkgdir}${MINGW_PREFIX}"/share/man/[^man1]*
+}

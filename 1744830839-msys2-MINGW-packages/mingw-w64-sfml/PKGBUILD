@@ -1,0 +1,95 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=sfml
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-docs")
+pkgver=2.6.1
+pkgrel=1
+pkgdesc="A simple, fast, cross-platform, and object-oriented multimedia API (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://www.sfml-dev.org/"
+license=('spdx:Zlib')
+replaces=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+depends=("${MINGW_PACKAGE_PREFIX}-flac"
+         "${MINGW_PACKAGE_PREFIX}-freetype"
+         "${MINGW_PACKAGE_PREFIX}-libjpeg"
+         "${MINGW_PACKAGE_PREFIX}-libvorbis"
+         "${MINGW_PACKAGE_PREFIX}-openal")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-doxygen"
+             "unzip")
+source=("https://www.sfml-dev.org/files/SFML-${pkgver}-sources.zip"
+        mingw-w64-msys2.patch)
+sha256sums=('5bf19e5c303516987f7f54d4ff1b208a0f9352ffa1cd55f992527016de0e8cb7'
+            '0db982d5f480f41cb71f9e916c628af91a27ae216832cfd7e2ebb39e1ecbf5da')
+noextract=(SFML-${pkgver}-sources.zip)
+
+prepare() {
+  rm -fr "${srcdir}"/SFML-${pkgver}
+  unzip -q SFML-${pkgver}-sources.zip
+  cd "${srcdir}/SFML-${pkgver}"
+  patch -p1 -i "${srcdir}/mingw-w64-msys2.patch"
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}-shared" && cd "${srcdir}/build-${MSYSTEM}-shared"
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=;-DSFML_PKGCONFIG_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G"MSYS Makefiles" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DSFML_BUILD_EXAMPLES=ON \
+    -DSFML_BUILD_DOC=ON \
+    -DSFML_INSTALL_PKGCONFIG_FILES=ON \
+    -DSFML_PKGCONFIG_INSTALL_PREFIX=${MINGW_PREFIX}/lib/pkgconfig \
+    -DBUILD_SHARED_LIBS=ON \
+    ../SFML-${pkgver}
+
+  "${MINGW_PREFIX}"/bin/cmake.exe --build .
+
+  mkdir -p "${srcdir}/build-${MSYSTEM}-static" && cd "${srcdir}/build-${MSYSTEM}-static"
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=;-DSFML_PKGCONFIG_INSTALL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -G"MSYS Makefiles" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DSFML_BUILD_EXAMPLES=OFF \
+    -DSFML_BUILD_DOC=OFF \
+    -DSFML_INSTALL_PKGCONFIG_FILES=ON \
+    -DSFML_PKGCONFIG_INSTALL_PREFIX=${MINGW_PREFIX}/lib/pkgconfig \
+    -DBUILD_SHARED_LIBS=OFF \
+    ../SFML-${pkgver}
+
+  "${MINGW_PREFIX}"/bin/cmake.exe --build .
+}
+
+package_sfml() {
+  DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install "${srcdir}/build-${MSYSTEM}-static"
+  DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install "${srcdir}/build-${MSYSTEM}-shared"
+  install -Dm644 "${srcdir}/SFML-${pkgver}/license.md" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+
+  # split docs
+  mkdir -p dest${MINGW_PREFIX}/share
+  mv "${pkgdir}${MINGW_PREFIX}"/share/doc dest${MINGW_PREFIX}/share/doc
+}
+
+package_sfml-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv dest/* "${pkgdir}"
+}
+
+# template start; name=mingw-w64-splitpkg-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;

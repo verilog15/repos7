@@ -1,0 +1,51 @@
+# Maintainer: Sarah Ottinger <schalaalexiazeal@gmail.com>
+
+_realname=librosa
+pkgbase=mingw-w64-python-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
+pkgver=0.9.2
+pkgrel=4
+pkgdesc='Python library for music and audio analysis (mingw-w64)'
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64')
+url="https://librosa.org/"
+msys2_references=(
+  'purl: pkg:pypi/librosa'
+)
+license=('spdx:ISC')
+depends=(
+    "${MINGW_PACKAGE_PREFIX}-python-audioread"
+    "${MINGW_PACKAGE_PREFIX}-python-decorator"
+    "${MINGW_PACKAGE_PREFIX}-python-joblib"
+    "${MINGW_PACKAGE_PREFIX}-python-matplotlib"
+    "${MINGW_PACKAGE_PREFIX}-python-numba"
+    "${MINGW_PACKAGE_PREFIX}-python-resampy"
+    "${MINGW_PACKAGE_PREFIX}-python-scikit-learn"
+    "${MINGW_PACKAGE_PREFIX}-python-scipy"
+    "${MINGW_PACKAGE_PREFIX}-python-six"
+    "${MINGW_PACKAGE_PREFIX}-python-soundfile"
+    "${MINGW_PACKAGE_PREFIX}-python-pooch"
+)
+makedepends=("${MINGW_PACKAGE_PREFIX}-python-setuptools")
+source=("${_realname}-$pkgver.tar.gz::https://github.com/librosa/librosa/archive/$pkgver.tar.gz")
+sha256sums=('6bb5d527680c2ca733407dc69bfddfbe5cc8cc530b997c20aa288ede222d9d47')
+
+prepare() {
+  cd "$srcdir"
+  rm -rf python-build-${MSYSTEM} | true
+  cp -r "${_realname}-${pkgver}" "python-build-${MSYSTEM}"
+}
+
+build() {
+  msg "Python build for ${MSYSTEM}"
+  cd "${srcdir}/python-build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/python setup.py build
+}
+
+package() {
+  cd "${srcdir}/python-build-${MSYSTEM}"
+  MSYS2_ARG_CONV_EXCL="--prefix=;--install-scripts=;--install-platlib=" \
+  ${MINGW_PREFIX}/bin/python setup.py install --prefix=${MINGW_PREFIX} \
+    --root="${pkgdir}" --optimize=1 --skip-build
+  install -Dm644 LICENSE.md "${pkgdir}${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE.md"
+}

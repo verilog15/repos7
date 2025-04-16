@@ -1,0 +1,58 @@
+# Maintainer: Philippe Renon <philippe_renon@yahoo.fr>
+
+_realname=gst-rtsp-server
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.26.0
+pkgrel=1
+pkgdesc="GStreamer RTSP server library (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://gstreamer.freedesktop.org/"
+msys2_references=(
+  "cpe: cpe:/a:gstreamer_project:gst-rtsp-server"
+)
+license=("LGPL")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-meson"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-gobject-introspection"
+             "${MINGW_PACKAGE_PREFIX}-gtk-doc"
+             "${MINGW_PACKAGE_PREFIX}-gettext-tools")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-glib2"
+         "${MINGW_PACKAGE_PREFIX}-gettext-runtime"
+         "${MINGW_PACKAGE_PREFIX}-gstreamer"
+         "${MINGW_PACKAGE_PREFIX}-gst-plugins-base"
+         "${MINGW_PACKAGE_PREFIX}-gst-plugins-good"
+         "${MINGW_PACKAGE_PREFIX}-gst-plugins-ugly"
+         "${MINGW_PACKAGE_PREFIX}-gst-plugins-bad")
+source=("${url}/src/${_realname}/${_realname}-${pkgver}.tar.xz"{,.asc})
+sha256sums=('e983c039496e3f75e39696554ce74db4120e2465de17aa1cc37160568e9b40bc'
+            'SKIP')
+validpgpkeys=('D637032E45B8C6585B9456565D2EEE6F6F349D7C') # Tim Müller <tim@gstreamer-foundation.org>
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+  ${MINGW_PREFIX}/bin/meson.exe setup \
+    --prefix="${MINGW_PREFIX}" \
+    --buildtype plain \
+    --wrap-mode=nofallback \
+    -Dauto_features=enabled \
+    -Dpackage-origin='https://www.msys2.org' \
+    -Ddoc=disabled \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/meson.exe compile
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/meson.exe install
+
+  rm -f "${pkgdir}"${MINGW_PREFIX}/lib/gstreamer*/*.a
+}

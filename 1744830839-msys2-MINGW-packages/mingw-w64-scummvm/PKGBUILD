@@ -1,0 +1,64 @@
+# Maintainer: Lothar Serra Mari <serra@scummvm.org>
+
+_realname=scummvm
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=2.9.0
+pkgrel=1
+pkgdesc="A 'virtual machine' for several classic graphical point-and-click adventure games. (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://www.scummvm.org/'
+license=("spdx:GPL-3.0-or-later")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-autotools")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-a52dec"
+         "${MINGW_PACKAGE_PREFIX}-curl"
+         "${MINGW_PACKAGE_PREFIX}-faad2"
+         "${MINGW_PACKAGE_PREFIX}-freetype"
+         "${MINGW_PACKAGE_PREFIX}-flac"
+         "${MINGW_PACKAGE_PREFIX}-fluidsynth"
+         "${MINGW_PACKAGE_PREFIX}-fribidi"
+         "${MINGW_PACKAGE_PREFIX}-glew"
+         "${MINGW_PACKAGE_PREFIX}-libjpeg-turbo"
+         "${MINGW_PACKAGE_PREFIX}-libogg"
+         "${MINGW_PACKAGE_PREFIX}-libvorbis"
+         "${MINGW_PACKAGE_PREFIX}-libmad"
+         "${MINGW_PACKAGE_PREFIX}-libmpeg2-git"
+         "${MINGW_PACKAGE_PREFIX}-libtheora"
+         "${MINGW_PACKAGE_PREFIX}-libpng"
+         $([[ ${CARCH} == aarch64 ]] || echo "${MINGW_PACKAGE_PREFIX}-nasm")
+         "${MINGW_PACKAGE_PREFIX}-readline"
+         "${MINGW_PACKAGE_PREFIX}-SDL2"
+         "${MINGW_PACKAGE_PREFIX}-SDL2_net"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+source=("https://downloads.scummvm.org/frs/scummvm/${pkgver}/scummvm-${pkgver}.tar.xz")
+sha256sums=('d5b33532bd70d247f09127719c670b4b935810f53ebb6b7b6eafacaa5da99452')
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("--enable-release" "--enable-optimizations" "--disable-debug")
+  else
+    _extra_config+=("--disable-release" "--disable-optimizations" "--enable-debug")
+  fi
+
+  # because of MSYS emulation, host_cpu detected as AMD64
+  if [[ ${CARCH} == aarch64 ]]; then
+    _extra_config+=("--enable-ext-neon" "--disable-ext-sse2" "--disable-ext-avx2")
+  fi
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    "${_extra_config[@]}"
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  make DESTDIR="${pkgdir}" install
+}

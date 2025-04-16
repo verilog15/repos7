@@ -1,0 +1,123 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Tim Stahlhut <stahta01@gmail.com>
+
+_wx_basever=3.0
+
+_realname=codelite
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+replaces=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+pkgver=15.0
+pkgrel=5
+pkgdesc="Open-source, cross platform IDE for the C/C++ programming languages (mingw-w64)"
+arch=('any')
+mingw_arch=()
+url="https://www.codelite.org/"
+msys2_repository_url="https://github.com/eranif/codelite"
+license=('spdx:GPL-2.0-or-later')
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-hunspell"
+         "${MINGW_PACKAGE_PREFIX}-libssh"
+         "${MINGW_PACKAGE_PREFIX}-drmingw"
+         "${MINGW_PACKAGE_PREFIX}-clang"      # libclang
+         "${MINGW_PACKAGE_PREFIX}-uchardet"
+         "${MINGW_PACKAGE_PREFIX}-wxwidgets${_wx_basever}-msw-libs"
+         "${MINGW_PACKAGE_PREFIX}-sqlite3"
+         )
+optdepends=("${MINGW_PACKAGE_PREFIX}-clang")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-wxwidgets${_wx_basever}-msw"
+             "${MINGW_PACKAGE_PREFIX}-boost"
+             #"${MINGW_PACKAGE_PREFIX}-clang"
+            )
+source=("https://github.com/eranif/codelite/archive/${pkgver}/${_realname}-${pkgver}.tar.gz"
+        001-include-winsock-header.patch
+        002-mingw-use-wx-manifests.patch
+        003-use-gnu-extensions.patch
+        004-windows-headers-conflict.patch
+        005-cl-15-fix-sqlite3-find-and-build.patch
+        006-proper-libraries-names-mingw.patch
+        007-strip-whitespaces-flags.patch
+        010-strange-conflicts.patch
+        011-backport-use-ToStdString.patch
+        013-fix-linking-libraries-names.patch
+        014-fix-link-dup-error.patch
+        015-remove-WXDLLIMPEXP_SDK-from-codelite_terminal.patch
+        016-mingw-Set-better-target-names.patch
+        017-unnest-StringHashOptionalCase-and-StringCompareOptio.patch)
+sha256sums=('9dd5679660a9d1a51186fcbb2d0d44655f0bc8bedeb2ee57b28c9776f139353f'
+            'f1babfd20f19c417d32392d7200950fec93ea27022ec1e377f7d4b89332df3da'
+            'cfac30a871df28c19330f0cc607ac57b64ae54896af22c0e189de4f76c0738b7'
+            'fbed169ac80a8679c3b5fadb2521a61745c98eebb65050a088d82240b0da37d5'
+            '7b8d62c0af7cce47de53be38f5b4e517b464e19f60785e9757bbe9340608928d'
+            '1430a6d08ea97b1e9d748f6f73a80fdfe3be2ec414588d9c0519ed84bccac66c'
+            '6208622ed2060fe399ccc9ec510507b2102809178a70d4cf7b17cd806cdc308d'
+            'a9e5539e31c664a84e42412cdd30b44699a92efb2fb6f51000010bb958c10219'
+            '5a6312aa0373587cf89e5a025fa81dc4f249a37db103e133a27bb15f4a611d1b'
+            '534ca3b9482ae01f240d50e6a3d57fbe000991e007b0d9f80f4e973b79ac2661'
+            'd1f58f6c7afcb13453004d56db32640427e214fe3c96faacbddd270e4f5137ed'
+            '73352c5718538f022407cec30b57e5805accd5f32dcabae2b431c68a64c0e418'
+            'd4f90a769e060c048cf4fb3fe907271fe22378fcdf0b82ec4969d77c2936045c'
+            'e9f37907e7ebb0199eae9f504c518f808486503357b8cf8c3ea22987bab05f3d'
+            '0b2aaa6b2432b937af6c5a585fe2dd8853315e5f96f993b35cee61a6ca65a320')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -p1 -i "${srcdir}"/001-include-winsock-header.patch
+  patch -p1 -i "${srcdir}"/002-mingw-use-wx-manifests.patch
+  patch -p1 -i "${srcdir}"/003-use-gnu-extensions.patch
+  patch -p1 -i "${srcdir}"/004-windows-headers-conflict.patch
+  patch -p1 -i "${srcdir}"/005-cl-15-fix-sqlite3-find-and-build.patch
+  patch -p1 -i "${srcdir}"/006-proper-libraries-names-mingw.patch
+  patch -p1 -i "${srcdir}"/007-strip-whitespaces-flags.patch
+  #patch -p1 -i "${srcdir}"/010-strange-conflicts.patch
+  patch -p1 -i "${srcdir}"/011-backport-use-ToStdString.patch
+  patch -p1 -i "${srcdir}"/013-fix-linking-libraries-names.patch
+  patch -p1 -i "${srcdir}"/014-fix-link-dup-error.patch
+  patch -p1 -i "${srcdir}"/015-remove-WXDLLIMPEXP_SDK-from-codelite_terminal.patch
+  patch -p1 -i "${srcdir}"/016-mingw-Set-better-target-names.patch
+  patch -p1 -i "${srcdir}"/017-unnest-StringHashOptionalCase-and-StringCompareOptio.patch
+}
+
+build() {
+  mkdir -p build-${MSYSTEM} && cd build-${MSYSTEM}
+
+  local -a extra_config
+  if check_option "debug" "y"; then
+    extra_config+=( -DCMAKE_BUILD_TYPE=Debug )
+  else
+    extra_config+=( -DCMAKE_BUILD_TYPE=Release )
+  fi
+
+  # disables the part of urlmon.h that defines IsLoggingEnabled
+  # This replaces 010-strange-conflicts.patch
+  CXXFLAGS+=" -D_HITLOGGING_DEFINED=0"
+
+  MSYS2_ARG_CONV_EXCL="-DCL_PREFIX=" \
+  ${MINGW_PREFIX}/bin/cmake \
+    -Wno-dev \
+    -G"MSYS Makefiles" \
+    -DCL_PREFIX=${MINGW_PREFIX} \
+    -DENABLE_CLANG=1 \
+    -DWITH_WEBVIEW=1 \
+    -DwxWidgets_CONFIG_EXECUTABLE=${MINGW_PREFIX}/bin/wx-config-${_wx_basever} \
+    -DwxWidgets_wxrc_EXECUTABLE=${MINGW_PREFIX}/bin/wxrc-${_wx_basever} \
+    "${extra_config[@]}" \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake --build .
+}
+
+package() {
+  cd build-${MSYSTEM}
+
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake --install .
+
+  install -Dm644 "${srcdir}"/${_realname}-${pkgver}/LICENSE "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+
+  # why?
+  rm -f "${pkgdir}"${MINGW_PREFIX}/lib/codelite/*.a
+  rm -f "${pkgdir}"${MINGW_PREFIX}/lib/*.a
+}

@@ -1,0 +1,53 @@
+# Maintainer: Martell Malone <martellmalone@gmail.com>
+
+_realname=nanovg
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+replaces=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+pkgver=r398.c35e80c
+pkgrel=2
+pkgdesc="Small antialiased vector graphics rendering library for OpenGL (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64')
+url="https://github.com/memononen/nanovg"
+license=('spdx:Zlib')
+makedepends=("git" "${MINGW_PACKAGE_PREFIX}-premake4" "${MINGW_PACKAGE_PREFIX}-cc")
+_commit="c35e80c3fed7445b4e2973fccccc89afd97834cf"
+source=("${_realname}"::"git+https://github.com/memononen/nanovg.git#commit=${_commit}")
+sha256sums=('SKIP')
+
+case ${MINGW_CHOST} in
+  i686*)
+    _mach=x86
+    _ctype=release32
+  ;;
+  x86_64*)
+    _mach=x86_64
+    _ctype=release64
+  ;;
+esac
+
+pkgver() {
+  cd "${srcdir}/${_realname}"
+  printf "r%s.%s" "$(git rev-list --count "${_commit}")" "$(git rev-parse --short "${_commit}")"
+}
+
+build() {
+  cd "${srcdir}"
+  rm -rf "${MSYSTEM}" || true
+  cp -rf "${srcdir}/${_realname}" "${srcdir}/${MSYSTEM}"
+  cd "${srcdir}/${MSYSTEM}"
+  premake4 gmake --os=windows cc=cc
+  cd build
+  make config=${_ctype} nanovg
+}
+
+package() {
+  install -v -Dm644 "${srcdir}/$MSYSTEM/build/libnanovg.a" "${pkgdir}${MINGW_PREFIX}/lib/libnanovg.a" || exit 1
+  install -v -Dm644 "${srcdir}/$MSYSTEM/LICENSE.txt" "${pkgdir}${MINGW_PREFIX}/share/licenses/$_realname/LICENSE.txt" || exit 1
+  install -v -Dm644 "${srcdir}/$MSYSTEM/src/nanovg.h" "${pkgdir}${MINGW_PREFIX}/include/nanovg/nanovg.h" || exit 1
+  install -v -Dm644 "${srcdir}/$MSYSTEM/src/nanovg_gl.h" "${pkgdir}${MINGW_PREFIX}/include/nanovg/nanovg_gl.h" || exit 1
+  install -v -Dm644 "${srcdir}/$MSYSTEM/src/nanovg_gl_utils.h" "${pkgdir}${MINGW_PREFIX}/include/nanovg/nanovg_gl_utils.h" || exit 1
+  install -v -Dm644 "${srcdir}/$MSYSTEM/src/fontstash.h" "${pkgdir}${MINGW_PREFIX}/include/nanovg/fontstash.h" || exit 1
+}

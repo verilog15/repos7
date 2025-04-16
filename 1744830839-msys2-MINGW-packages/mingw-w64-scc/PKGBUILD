@@ -1,0 +1,56 @@
+# Maintainer: Wu Zhenyu <wuzy01@qq.com>
+
+_realname=scc
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=3.5.0
+pkgrel=1
+pkgdesc='Sloc, Cloc and Code: a very fast accurate code counter with complexity calculations and COCOMO estimates written in pure Go (mingw-w64)'
+arch=(any)
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://github.com/boyter/scc"
+msys2_references=(
+  'aur: scc'
+)
+license=('spdx:MIT OR Unlicense')
+makedepends=(
+  "$MINGW_PACKAGE_PREFIX-go"
+  "$MINGW_PACKAGE_PREFIX-gcc"
+)
+options=('!strip')
+source=("https://github.com/boyter/scc/archive/v${pkgver}/${_realname}-${pkgver}.tar.gz")
+noextract=("${_realname}-${pkgver}.tar.gz")
+sha256sums=('161f5d9bb359c6440114b7d2e0f98d588c02aa66fbe474d7660b244687fefb70')
+
+prepare() {
+  tar -xf "${_realname}-${pkgver}.tar.gz" || true
+  cd "$_realname-$pkgver"
+  mkdir -p build/
+}
+
+build() {
+  cd "$_realname-$pkgver"
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw"
+  case "${CARCH}" in
+    i686|x86_64)
+      GOFLAGS+=" -buildmode=pie"
+      ;;
+  esac
+
+  go build -o build ./...
+}
+
+check() {
+  cd "$_realname-$pkgver"
+  go test ./...
+}
+
+package() {
+  cd "$_realname-$pkgver"
+  install -Dm755 build/$_realname "$pkgdir$MINGW_PREFIX/bin/$_realname"
+  install -Dm644 LICENSE "$pkgdir$MINGW_PREFIX/share/licenses/$_realname/LICENSE"
+}

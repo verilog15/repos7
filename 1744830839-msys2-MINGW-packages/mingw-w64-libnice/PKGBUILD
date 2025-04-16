@@ -1,0 +1,59 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=libnice
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.1.22
+pkgrel=1
+pkgdesc="An implementation of the IETF's draft ICE (for p2p UDP data streams) (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://libnice.freedesktop.org/"
+msys2_repository_url="https://gitlab.freedesktop.org/libnice/libnice"
+license=("spdx:LGPL-2.1-only OR MPL-1.1")
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-gstreamer"
+             "${MINGW_PACKAGE_PREFIX}-gobject-introspection"
+             "${MINGW_PACKAGE_PREFIX}-gtk-doc"
+             "${MINGW_PACKAGE_PREFIX}-meson"
+             "${MINGW_PACKAGE_PREFIX}-pkgconf"
+             "${MINGW_PACKAGE_PREFIX}-ninja")
+depends=("${MINGW_PACKAGE_PREFIX}-glib2"
+         "${MINGW_PACKAGE_PREFIX}-gnutls"
+         #"${MINGW_PACKAGE_PREFIX}-openssl"
+        )
+optdepends=("${MINGW_PACKAGE_PREFIX}-gstreamer: nice GStreamer plugin")
+source=("https://nice.freedesktop.org/releases/${_realname}-${pkgver}.tar.gz")
+sha256sums=('a5f724cf09eae50c41a7517141d89da4a61ec9eaca32da4a0073faed5417ad7e')
+
+build() {
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+  ${MINGW_PREFIX}/bin/meson.exe setup \
+    --prefix="${MINGW_PREFIX}" \
+    --buildtype=plain \
+    -Dintrospection=enabled \
+    -Dgtk_doc=enabled \
+    -Dcrypto-library=gnutls \
+    "../${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/meson.exe compile
+}
+
+check() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/meson.exe test || warning "Tests failed"
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/meson.exe install --destdir="${pkgdir}"
+
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING.LGPL" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING.LGPL"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING.MPL" \
+    "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING.MPL"
+}

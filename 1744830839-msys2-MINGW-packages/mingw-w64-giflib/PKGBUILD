@@ -1,0 +1,48 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=giflib
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=5.2.2
+pkgrel=1
+pkgdesc="A library for reading and writing gif images (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url="https://sourceforge.net/projects/giflib"
+msys2_repository_url=${url}
+msys2_references=(
+  "cpe: cpe:/a:giflib_project:giflib"
+)
+license=("MIT")
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-cc"
+  "xmlto"
+)
+depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+source=("https://downloads.sourceforge.net/sourceforge/giflib/${_realname}-${pkgver}.tar.gz"
+        "001-mingw-build.patch"
+        "giflib_quantize.patch")
+sha256sums=('be7ffbd057cadebe2aa144542fd90c6838c6a083b5e8a9048b8ee3b66b29d5fb'
+            '57f4da1dd467a13c92b07347d00f4675738ea5ba32d93195b8b7f1eb2cf8bc9d'
+            '29f0d5a98520cf908a11325987ca9ef2454ca8cb85ce9815b75a52956b9df28a')
+noextract=(${_realname}-${pkgver}.tar.gz)
+
+prepare() {
+  [[ -d "${srcdir}"/${_realname}-${pkgver} ]] && rm -rf "${srcdir}"/${_realname}-${pkgver}
+  tar -xzf "${srcdir}"/${_realname}-${pkgver}.tar.gz -C "${srcdir}" || true
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/001-mingw-build.patch"
+  # https://src.fedoraproject.org/rpms/giflib/c/109bf038d703a471b857aba44af673be103d7079
+  patch -Np1 -i "${srcdir}/giflib_quantize.patch"
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  make
+}
+
+package() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  make DESTDIR="${pkgdir}" PREFIX="${MINGW_PREFIX}" install
+}

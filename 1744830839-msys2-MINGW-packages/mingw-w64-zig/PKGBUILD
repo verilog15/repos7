@@ -1,0 +1,69 @@
+# Maintainer:  Matheus Catarino <matheus-catarino@hotmail.com>
+
+_realname=zig
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.14.0
+pkgrel=1
+pkgdesc='A general-purpose programming language and toolchain for maintaining robust, optimal, and reusable software (mingw-w64)'
+arch=('any')
+mingw_arch=('clang64')
+url='https://ziglang.org'
+msys2_repository_url='https://github.com/ziglang/zig/'
+msys2_documentation_url='https://github.com/ziglang/zig?tab=readme-ov-file#readme'
+msys2_references=(
+  'archlinux: zig'
+)
+license=('spdx:MIT')
+depends=("${MINGW_PACKAGE_PREFIX}-clang-libs"
+         "${MINGW_PACKAGE_PREFIX}-llvm-libs"
+         "${MINGW_PACKAGE_PREFIX}-zstd")
+makedepends=("${MINGW_PACKAGE_PREFIX}-clang"
+             "${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-ninja"
+             "${MINGW_PACKAGE_PREFIX}-lld")
+source=("https://github.com/ziglang/zig/archive/${pkgver}/zig-${pkgver}.tar.gz"
+        "001-support-llvm-20.patch::https://patch-diff.githubusercontent.com/raw/ziglang/zig/pull/22780.patch")
+sha256sums=('b45589b782a9406a414a3cac201ca0243650f9bedcb453730c124bf6f07ab33f'
+            '18d9ba8dc5dfb2e6c851334b94f1fba1041d96df14fd17ec0ea5979e31d6b3a8')
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  patch -p1 -i "${srcdir}"/001-support-llvm-20.patch
+}
+
+build() {
+  declare -a _extra_config
+  if check_option "debug" "n"; then
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    _extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
+  cmake -Wno-dev \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DZIG_HOST_TARGET_TRIPLE=x86_64-windows-gnu \
+    -DZIG_TARGET_TRIPLE=x86_64-windows-gnu \
+    -DZIG_SHARED_LLVM=ON \
+    -DZIG_STATIC_ZLIB=OFF \
+    -DZIG_STATIC_ZSTD=OFF \
+    -DZIG_SYSTEM_LIBCXX=c++ \
+    -DZIG_TARGET_MCPU=baseline \
+    -DZIG_USE_LLVM_CONFIG=ON \
+    "${_extra_config[@]}" \
+    -S ${_realname}-${pkgver} \
+    -B build-${MSYSTEM}
+
+  cmake --build build-${MSYSTEM}
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install build-${MSYSTEM}
+
+  install -Dm644 "${srcdir}"/${_realname}-${pkgver}/LICENSE \
+    "${pkgdir}"${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE
+}

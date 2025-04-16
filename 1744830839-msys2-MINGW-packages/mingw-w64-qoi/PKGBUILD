@@ -1,0 +1,31 @@
+# Maintainer: Biswapriyo Nath <nathbappai@gmail.com>
+
+_realname=qoi
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=r346.b0b926e
+pkgrel=1
+_commit='b0b926ee70108b0113dd2718d13d2207c474ed2e'
+pkgdesc="The 'Quite OK Image' format for fast, lossless image compression (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clangarm64')
+url='https://qoiformat.org/'
+msys2_repository_url='https://github.com/phoboslab/qoi'
+msys2_references=(
+  'aur: qoi-headers-git'
+)
+license=('spdx:MIT')
+makedepends=("git")
+source=("git+https://github.com/phoboslab/qoi.git#commit=${_commit}")
+sha256sums=('d765d77e3131960def3d6ee39e77d89e6b1beec28f270af8b515c30253c470d7')
+
+pkgver() {
+  cd "${_realname}"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+package() {
+  cd "${_realname}"
+  install -Dm644 qoi.h "${pkgdir}${MINGW_PREFIX}"/include/qoi.h
+  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}

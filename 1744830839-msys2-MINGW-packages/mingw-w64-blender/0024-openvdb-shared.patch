@@ -1,0 +1,11 @@
+--- a/extern/mantaflow/CMakeLists.txt
++++ b/extern/mantaflow/CMakeLists.txt
+@@ -131,7 +131,7 @@
+   list(APPEND LIB
+     ${OPENVDB_LIBRARIES}
+   )
+-  if(WIN32)
++  if(MSVC)
+     # OpenVDB emits lots of these, they should be suppressed through other
+     # means but MSVC 16.8/16.9 has broken this functionality, so C4251 is
+     # suppressed here explicitly. See
