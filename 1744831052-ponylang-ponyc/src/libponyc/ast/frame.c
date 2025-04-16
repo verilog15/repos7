@@ -1,0 +1,301 @@
+#include "frame.h"
+#include "ast.h"
+#include "error.h"
+#include "../../libponyrt/mem/pool.h"
+#include "ponyassert.h"
+#include <string.h>
+
+static bool push_frame(typecheck_t* t)
+{
+  typecheck_frame_t* f = POOL_ALLOC(typecheck_frame_t);
+
+  if(t->frame != NULL)
+  {
+    memcpy(f, t->frame, sizeof(typecheck_frame_t));
+    f->prev = t->frame;
+  } else {
+    memset(f, 0, sizeof(typecheck_frame_t));
+  }
+
+  t->frame = f;
+  return true;
+}
+
+bool frame_push(typecheck_t* t, ast_t* ast)
+{
+  bool pop = false;
+
+  if(ast == NULL)
+  {
+    typecheck_frame_t* f = POOL_ALLOC(typecheck_frame_t);
+    memset(f, 0, sizeof(typecheck_frame_t));
+    f->prev = t->frame;
+    t->frame = f;
+
+    return true;
+  }
+
+  switch(ast_id(ast))
+  {
+    case TK_PROGRAM:
+      pop = push_frame(t);
+      t->frame->package = NULL;
+      t->frame->module = NULL;
+      break;
+
+    case TK_PACKAGE:
+      // Can occur in a module as a result of a use expression.
+      pop = push_frame(t);
+      t->frame->package = ast;
+      t->frame->module = NULL;
+      break;
+
+    case TK_MODULE:
+      pop = push_frame(t);
+      t->frame->module = ast;
+      t->frame->ifdef_cond = NULL;
+      t->frame->ifdef_clause = ast;
+      break;
+
+    case TK_INTERFACE:
+    case TK_TRAIT:
+    case TK_PRIMITIVE:
+    case TK_STRUCT:
+    case TK_CLASS:
+    case TK_ACTOR:
+      pop = push_frame(t);
+      t->frame->type = ast;
+      break;
+
+    case TK_PROVIDES:
+      pop = push_frame(t);
+      t->frame->provides = ast;
+      break;
+
+    case TK_NEW:
+    case TK_BE:
+    case TK_FUN:
+      pop = push_frame(t);
+      t->frame->method = ast;
+      break;
+
+    case TK_TYPEARGS:
+      pop = push_frame(t);
+      t->frame->method_type = NULL;
+      t->frame->ffi_type = NULL;
+      t->frame->local_type = NULL;
+      t->frame->constraint = NULL;
+      t->frame->iftype_constraint = NULL;
+      break;
+
+    case TK_CASE:
+      pop = push_frame(t);
+      t->frame->the_case = ast;
+      break;
+
+    case TK_WHILE:
+    case TK_REPEAT:
+      pop = push_frame(t);
+      t->frame->loop = ast;
+      break;
+
+    case TK_TRY:
+    case TK_TRY_NO_CHECK:
+      pop = push_frame(t);
+      t->frame->try_expr = ast;
+      break;
+
+    case TK_DISPOSING_BLOCK:
+      pop = push_frame(t);
+      break;
+
+    case TK_RECOVER:
+      pop = push_frame(t);
+      t->frame->recover = ast;
+      break;
+
+    default:
+    {
+      ast_t* parent = ast_parent(ast);
+
+      if(parent == NULL)
+        return pop;
+
+      switch(ast_id(parent))
+      {
+        case TK_TYPEPARAM:
+        {
+          AST_GET_CHILDREN(parent, id, constraint, def_type);
+
+          if(constraint == ast)
+          {
+            pop = push_frame(t);
+            t->frame->constraint = ast;
+          }
+          break;
+        }
+
+        case TK_NEW:
+        case TK_BE:
+        case TK_FUN:
+        {
+          AST_GET_CHILDREN(parent,
+            cap, id, typeparams, params, result, error, body);
+
+          if(params == ast)
+          {
+            pop = push_frame(t);
+            t->frame->method_params = ast;
+          } else if(result == ast) {
+            pop = push_frame(t);
+            t->frame->method_type = ast;
+          } else if(body == ast) {
+            pop = push_frame(t);
+            t->frame->method_body = ast;
+          }
+          break;
+        }
+
+        case TK_TYPEARGS:
+        {
+          switch(ast_id(ast_parent(parent)))
+          {
+            case TK_FFIDECL:
+            case TK_FFICALL:
+              pop = push_frame(t);
+              t->frame->ffi_type = ast;
+              break;
+
+            default: {}
+          }
+          break;
+        }
+
+        case TK_PARAM:
+        {
+          AST_GET_CHILDREN(parent, id, type, def_arg);
+
+          if(type == ast)
+          {
+            pop = push_frame(t);
+            t->frame->local_type = ast;
+          } else if(def_arg == ast) {
+            pop = push_frame(t);
+            t->frame->def_arg = ast;
+          }
+          break;
+        }
+
+        case TK_VAR:
+        case TK_LET:
+          if(ast_childidx(parent, 1) == ast)
+          {
+            pop = push_frame(t);
+            t->frame->local_type = ast;
+          }
+          break;
+
+        case TK_CASE:
+          if(ast_child(parent) == ast)
+          {
+            pop = push_frame(t);
+            t->frame->pattern = ast;
+          }
+          break;
+
+        case TK_AS:
+        {
+          AST_GET_CHILDREN(parent, expr, type);
+
+          if(type == ast)
+          {
+            pop = push_frame(t);
+            t->frame->as_type = ast;
+          }
+          break;
+        }
+
+        case TK_WHILE:
+        {
+          AST_GET_CHILDREN(parent, cond, body, else_clause);
+
+          if(cond == ast)
+          {
+            pop = push_frame(t);
+            t->frame->loop_cond = ast;
+          } else if(body == ast) {
+            pop = push_frame(t);
+            t->frame->loop_body = ast;
+          } else if(else_clause == ast) {
+            pop = push_frame(t);
+            t->frame->loop_else = ast;
+          }
+          break;
+        }
+
+        case TK_REPEAT:
+        {
+          AST_GET_CHILDREN(parent, body, cond, else_clause);
+
+          if(body == ast)
+          {
+            pop = push_frame(t);
+            t->frame->loop_body = ast;
+          } else if(cond == ast) {
+            pop = push_frame(t);
+            t->frame->loop_cond = ast;
+          } else if(else_clause == ast) {
+            pop = push_frame(t);
+            t->frame->loop_else = ast;
+          }
+          break;
+        }
+
+        case TK_IFDEF:
+        {
+          AST_GET_CHILDREN(parent, cond, body, else_clause, else_cond);
+
+          if(body == ast)
+          {
+            pop = push_frame(t);
+            t->frame->ifdef_cond = cond;
+            t->frame->ifdef_clause = body;
+          } else if(else_clause == ast) {
+            pop = push_frame(t);
+            t->frame->ifdef_cond = else_cond;
+            t->frame->ifdef_clause = else_clause;
+          }
+          break;
+        }
+
+        case TK_IFTYPE:
+        {
+          AST_GET_CHILDREN(parent, l_type, r_type, body);
+
+          pop = push_frame(t);
+          if(r_type == ast)
+          {
+            t->frame->iftype_constraint = ast;
+          } else if(body == ast) {
+            t->frame->iftype_body = ast;
+          }
+          break;
+        }
+
+        default: {}
+      }
+      break;
+    }
+  }
+
+  return pop;
+}
+
+void frame_pop(typecheck_t* t)
+{
+  typecheck_frame_t* f = t->frame;
+  pony_assert(f != NULL);
+
+  t->frame = f->prev;
+  POOL_FREE(typecheck_frame_t, f);
+}
