@@ -1,0 +1,198 @@
+/*
+ * Copyright (C) 2016-2024 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.tomakehurst.wiremock.verification;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEventFactory.newPostMatchServeEvent;
+import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class NearMissCalculatorTest {
+
+  NearMissCalculator nearMissCalculator;
+
+  StubMappings stubMappings;
+  RequestJournal requestJournal;
+  Scenarios scenarios;
+  RequestMatcherExtension partialMatchMatcher =
+      new RequestMatcherExtension() {
+        @Override
+        public MatchResult match(Request request, Parameters parameters) {
+          return MatchResult.partialMatch(0.2);
+        }
+      };
+
+  @BeforeEach
+  public void init() {
+    stubMappings = mock(StubMappings.class);
+    requestJournal = mock(RequestJournal.class);
+    scenarios = new InMemoryScenarios();
+    nearMissCalculator =
+        new NearMissCalculator(
+            stubMappings, requestJournal, scenarios, Map.of("partial", partialMatchMatcher));
+  }
+
+  @Test
+  public void returnsNearest3MissesForSingleRequest() {
+    givenStubMappings(
+        get(urlEqualTo("/righ")).willReturn(aResponse()),
+        get(urlEqualTo("/totally-wrong1")).willReturn(aResponse()),
+        get(urlEqualTo("/totally-wrong222")).willReturn(aResponse()),
+        get(urlEqualTo("/almost-right")).willReturn(aResponse()),
+        get(urlEqualTo("/rig")).willReturn(aResponse()),
+        get(urlEqualTo("/totally-wrong33333")).willReturn(aResponse()));
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(mockRequest().url("/right").asLoggedRequest());
+
+    assertThat(nearest.size(), is(NEAR_MISS_COUNT));
+    assertThat(nearest.get(0).getStubMapping().getRequest().getUrl(), is("/righ"));
+    assertThat(nearest.get(1).getStubMapping().getRequest().getUrl(), is("/rig"));
+    assertThat(nearest.get(2).getStubMapping().getRequest().getUrl(), is("/almost-right"));
+  }
+
+  @Test
+  public void returns0NearMissesForSingleRequestWhenNoStubsPresent() {
+    givenStubMappings();
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(mockRequest().url("/right").asLoggedRequest());
+
+    assertThat(nearest.size(), is(0));
+  }
+
+  @Test
+  public void returns3NearestMissesForTheGivenRequestPattern() {
+    givenRequests(
+        mockRequest().method(DELETE).url("/rig"),
+        mockRequest().method(DELETE).url("/righ"),
+        mockRequest().method(DELETE).url("/almost-right"),
+        mockRequest().method(POST).url("/almost-right"));
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(newRequestPattern(DELETE, urlEqualTo("/right")).build());
+
+    assertThat(nearest.size(), is(NEAR_MISS_COUNT));
+    assertThat(nearest.get(0).getRequest().getUrl(), is("/righ"));
+    assertThat(nearest.get(1).getRequest().getUrl(), is("/rig"));
+    assertThat(nearest.get(2).getRequest().getUrl(), is("/almost-right"));
+    assertThat(nearest.get(2).getRequest().getMethod(), is(DELETE));
+  }
+
+  @Test
+  public void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
+    givenRequests(mockRequest().method(DELETE).url("/righ"));
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(newRequestPattern(DELETE, urlEqualTo("/right")).build());
+
+    assertThat(nearest.size(), is(1));
+    assertThat(nearest.get(0).getRequest().getUrl(), is("/righ"));
+  }
+
+  @Test
+  public void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
+    givenRequests();
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(newRequestPattern(DELETE, urlEqualTo("/right")).build());
+
+    assertThat(nearest.size(), is(0));
+  }
+
+  @Test
+  public void
+      stubMappingsWithIdenticalMethodAndUrlWillRankHigherDespiteOtherParametersBeingAbsent() {
+    givenStubMappings(
+        post("/the-correct-path")
+            .withName("Correct")
+            .withHeader("Accept", equalTo("text/plain"))
+            .withHeader("X-My-Header", matching("[0-9]*"))
+            .withQueryParam("search", containing("somethings"))
+            .withRequestBody(equalToJson("[1, 2, 3]"))
+            .withRequestBody(matchingJsonPath("$..*"))
+            .willReturn(ok()),
+        post("/another-path").withName("Another 1").willReturn(ok()),
+        get("/yet-another-path").withName("Yet another").willReturn(ok()));
+
+    List<NearMiss> nearestForCorrectMethodAndUrl =
+        nearMissCalculator.findNearestTo(
+            mockRequest().method(POST).url("/the-correct-path").asLoggedRequest());
+    assertThat(nearestForCorrectMethodAndUrl.get(0).getStubMapping().getName(), is("Correct"));
+
+    List<NearMiss> nearestForIncorrectMethodAndCorrectUrl =
+        nearMissCalculator.findNearestTo(
+            mockRequest().method(POST).url("/the-incorrect-path").asLoggedRequest());
+    assertThat(
+        nearestForIncorrectMethodAndCorrectUrl.get(0).getStubMapping().getName(), is("Correct"));
+
+    List<NearMiss> nearestForIncorrectMethodAndUrl =
+        nearMissCalculator.findNearestTo(
+            mockRequest().method(PUT).url("/the-incorrect-path").asLoggedRequest());
+    assertThat(nearestForIncorrectMethodAndUrl.get(0).getStubMapping().getName(), is("Correct"));
+  }
+
+  @Test
+  public void customMatcherIsUsedWhenCalculatingNearestMiss() {
+    givenStubMappings(
+        get(urlEqualTo("/correctpath")).andMatching("partial").willReturn(aResponse()),
+        get(urlEqualTo("/otherpath")).willReturn(aResponse()));
+
+    List<NearMiss> nearest =
+        nearMissCalculator.findNearestTo(
+            mockRequest().method(GET).url("/correctpath").asLoggedRequest());
+
+    assertThat(nearest.size(), is(2));
+    assertThat(nearest.get(0).getStubMapping().getRequest().getUrl(), is("/correctpath"));
+    assertThat(nearest.get(1).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+  }
+
+  private void givenStubMappings(final MappingBuilder... mappingBuilders) {
+    final List<StubMapping> mappings =
+        Arrays.stream(mappingBuilders).map(MappingBuilder::build).collect(Collectors.toList());
+
+    when(stubMappings.getAll()).thenReturn(mappings);
+  }
+
+  private void givenRequests(final Request... requests) {
+    final List<ServeEvent> serveEvents =
+        Arrays.stream(requests)
+            .map(request -> newPostMatchServeEvent(request, new ResponseDefinition()))
+            .collect(Collectors.toList());
+
+    when(requestJournal.getAllServeEvents()).thenReturn(serveEvents);
+  }
+}
